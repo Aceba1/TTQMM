@@ -36,9 +36,9 @@ namespace QModInstaller
 
             if (!Directory.Exists(qModBaseDir))
             {
-                Console.WriteLine("QMOD ERR: QMod directory was not found");
+                Console.WriteLine("QMOD WARN: QMod directory was not found");
                 Directory.CreateDirectory(qModBaseDir);
-                Console.WriteLine("QMOD INFO: Creaated QMod directory at {0}", qModBaseDir);
+                Console.WriteLine("QMOD INFO: Created QMod directory at {0}", qModBaseDir);
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace QModInstaller
 
                 if (mod.Enable.Equals(false))
                 {
-                    Console.WriteLine("QMOD WARN: {0} is disabled via config, skipping", mod.DisplayName);
+                    Console.WriteLine("QMOD INFO: {0} is disabled via config, skipping", mod.DisplayName);
                     continue;
                 }
 
@@ -150,8 +150,14 @@ namespace QModInstaller
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("QMOD ERR: something strange happened");
+                    Console.WriteLine("QMOD ERR: Something strange happened");
                     Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
+                    if (e.InnerException != null)
+                    {
+                        Console.WriteLine(e.InnerException.Message);
+                        Console.WriteLine(e.InnerException.StackTrace);
+                    }
                     return null;
                 }
             }

@@ -30,14 +30,14 @@ namespace QModManager
                 }
             }
 
-            //string SubnauticaDirectory = @"C:\Program Files (x86)\Steam\steamapps\common\Subnautica";
-            string SubnauticaDirectory = Path.Combine(Environment.CurrentDirectory, @"..\..");
+            //string SubnauticaDirectory = @"C:\Program Files (x86)\Steam\steamapps\common\TerraTech";
+            string TerraTechDirectory = Path.Combine(Environment.CurrentDirectory, @"..\..");
             string ManagedDirectory = Environment.CurrentDirectory;
 
-            if (parsedArgs.Keys.Contains("SubnauticaDirectory"))
-                SubnauticaDirectory = parsedArgs["SubnauticaDirectory"];
+            if (parsedArgs.Keys.Contains("TerraTechDirectory"))
+                TerraTechDirectory = parsedArgs["TerraTechDirectory"];
 
-            QModInjector injector = new QModInjector(SubnauticaDirectory, ManagedDirectory);
+            QModInjector injector = new QModInjector(TerraTechDirectory, ManagedDirectory);
 
             bool isInjected = injector.IsPatcherInjected();
             if (forceInstall)
@@ -49,7 +49,7 @@ namespace QModManager
                 }
                 else
                 {
-                    Console.WriteLine("Tried to Force Install, was already injected. Skipping installation.");
+                    Console.WriteLine("Tried to force install, was already injected. Skipping installation.");
                     return;
                 }
             }
@@ -72,7 +72,7 @@ namespace QModManager
                 {
                     Console.WriteLine("No patch detected, type 'yes' to install: ");
                     string consent = Console.ReadLine().Replace("'", "");
-                    if (consent == "yes" || consent == "YES")
+                    if (consent.ToLower() == "yes")
                     {
                         if (injector.Inject())
                             Console.WriteLine("QMods was installed!");
@@ -84,7 +84,7 @@ namespace QModManager
                 {
                     Console.WriteLine("Patch already installed! Type 'yes' to remove: ");
                     string consent = Console.ReadLine().Replace("'", "");
-                    if (consent == "yes" || consent == "YES")
+                    if (consent.ToLower() == "yes")
                     {
                         if (injector.Remove())
                             Console.WriteLine("QMods was removed!");
