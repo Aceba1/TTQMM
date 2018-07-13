@@ -22,7 +22,7 @@ DefaultDirName={code:GetDefaultDir}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
-OutputBaseFilename=QModsSetup
+OutputBaseFilename=TerraTechQMMSetup
 SetupIconFile=QModsIcon.ico
 Compression=lzma
 SolidCompression=yes
@@ -34,7 +34,7 @@ DirExistsWarning=no
 UsePreviousAppDir=no
 
 [Messages]
-ExitSetupMessage=Setup is not complete. If you exit now, QModManager will not be installed.%n%nExit Setup?
+ExitSetupMessage=Setup is not complete. If you exit now, QModManager will not be installed.%nExit Setup?
 SelectDirLabel3=Please select your TerraTech install folder.
 SelectDirBrowseLabel=If this is correct, click Next. If you need to select a different TerraTech install folder, click Browse.
 WizardSelectDir=Select TerraTech Install Location
@@ -106,5 +106,5 @@ begin
 			end;
 		end;
 	end;
-  Result := 'Remove this if needed';
+  Result := 'Remove this';
 end;

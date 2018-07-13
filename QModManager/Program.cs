@@ -58,7 +58,23 @@ namespace QModManager
                 if (isInjected)
                 {
 					Console.WriteLine("Uninstalling QMods...");
-					injector.Remove();
+                    try
+                    {
+					    injector.Remove();
+                    }
+                    catch (NullReferenceException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.StackTrace);
+                        if (e.InnerException != null)
+                        {
+                            Console.WriteLine(e.InnerException.Message);
+                            Console.WriteLine(e.InnerException.StackTrace);
+                        }
+                        Console.ReadKey();
+                        Environment.Exit(0);
+                        return;
+                    }
                 }
                 else
                 {
@@ -77,7 +93,7 @@ namespace QModManager
                         if (injector.Inject())
                             Console.WriteLine("QMods was installed!");
                         else
-                            Console.WriteLine("Error installed QMods. Please contact us on Discord");
+                            Console.WriteLine("Error installing QMods. Please contact us on Discord (discord.gg/WsvbVrP)");
                     }
                 }
                 else
@@ -89,7 +105,7 @@ namespace QModManager
                         if (injector.Remove())
                             Console.WriteLine("QMods was removed!");
                         else
-                            Console.WriteLine("Error removing QMods. Please contact us on Discord");
+                            Console.WriteLine("Error removing QMods. Please contact us on Discord (discord.gg/WsvbVrP)");
                     }
                 }
 

@@ -1,5 +1,6 @@
 ﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -38,36 +39,52 @@ namespace QModInstaller
 
         public bool Inject()
         {
-            if (isInjected()) return false;
+            try
+            {
+                if (isInjected()) return false;
 
-            // read dll
-            var game = AssemblyDefinition.ReadAssembly(mainFilename);
+                // read dll
+                var game = AssemblyDefinition.ReadAssembly(mainFilename);
 
-            // delete old backups
-            if (File.Exists(backupFilename))
-                File.Delete(backupFilename);
+                // delete old backups
+                if (File.Exists(backupFilename))
+                    File.Delete(backupFilename);
 
-            // save a copy of the dll as a backup
-            game.Write(backupFilename);
+                // save a copy of the dll as a backup
+                game.Write(backupFilename);
 
-            // load patcher module
-            var installer = AssemblyDefinition.ReadAssembly(installerFilename);
-            var patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.Single(x => x.Name == "Patch");
+                // load patcher module
+                var installer = AssemblyDefinition.ReadAssembly(installerFilename);
+                var patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.Single(x => x.Name == "Patch");
 
-            // target the injection method
-            var type = game.MainModule.GetType("GameInput");
-            var method = type.Methods.First(x => x.Name == "Awake");
+                // target the injection method
+                var type = game.MainModule.GetType("TankCamera");
+                var method = type.Methods.First(x => x.Name == "Start");
 
-            // inject
-            method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(OpCodes.Call, method.Module.Import(patchMethod)));
+                // inject
+                method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(OpCodes.Call, method.Module.Import(patchMethod)));
 
-            // save changes under original filename
-            game.Write(mainFilename);
+                // save changes under original filename
+                game.Write(mainFilename);
 
-            if (!Directory.Exists(terraTechDirectory + @"\QMods"))
-                Directory.CreateDirectory(terraTechDirectory + @"\QMods");
+                if (!Directory.Exists(terraTechDirectory + @"\QMods"))
+                    Directory.CreateDirectory(terraTechDirectory + @"\QMods");
 
-            return true;
+                return true;
+            }
+            catch (NullReferenceException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine(e.InnerException.Message);
+                    Console.WriteLine(e.InnerException.StackTrace);
+                }
+                Console.ReadKey();
+                Environment.Exit(0);
+                return false;
+            }
         }
 
 
@@ -91,25 +108,48 @@ namespace QModInstaller
 
         private bool isInjected()
         {
-            var game = AssemblyDefinition.ReadAssembly(mainFilename);
-
-            var type = game.MainModule.GetType("GameInput");
-            var method = type.Methods.First(x => x.Name == "Awake");
-
-            var installer = AssemblyDefinition.ReadAssembly(installerFilename);
-            var patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.FirstOrDefault(x => x.Name == "Patch");
-
-            bool patched = false;
-
-            foreach (var instruction in method.Body.Instructions)
+            try
             {
-                if (instruction.OpCode.Equals(OpCodes.Call) && instruction.Operand.ToString().Equals("System.Void QModInstaller.QModPatcher::Patch()"))
-                {
-                    return true;
-                }
-            }
+                var game = AssemblyDefinition.ReadAssembly(mainFilename);
 
-            return patched;
+                var rClass = "TankCamera";
+                var rMethod = "Start";
+
+                TypeDefinition type = null;
+                MethodDefinition method = null;
+
+                type = game.MainModule.GetType(rClass);
+                method = type.Methods.First(x => x.Name == rMethod);
+
+                var installer = AssemblyDefinition.ReadAssembly(installerFilename);
+                var patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.FirstOrDefault(x => x.Name == "Patch");
+
+                bool patched = false;
+
+                foreach (var instruction in method.Body.Instructions)
+                {
+                    if (instruction.OpCode.Equals(OpCodes.Call) && instruction.Operand.ToString().Equals("System.Void QModInstaller.QModPatcher::Patch()"))
+                    {
+                        return true;
+                    }
+                }
+
+                return patched;
+
+            }
+            catch (NullReferenceException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine(e.InnerException.Message);
+                    Console.WriteLine(e.InnerException.StackTrace);
+                }
+                Console.ReadKey();
+                Environment.Exit(0);
+                return false;
+            }
         }
     }
 }
