@@ -1,4 +1,5 @@
-﻿using Oculus.Newtonsoft.Json;
+﻿using Harmony;
+using Oculus.Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -115,6 +116,24 @@ namespace QModInstaller
                 if(mod != null)
                     loadedMods.Add(LoadMod(mod));
             }
+
+            var mods = firstMods;
+            mods.AddRange(otherMods);
+            mods.AddRange(lastMods);
+            mods.Sort();
+
+            var modNames = mods.Select(mod => mod.Id);
+            var usedMods = string.Join(", ", modNames.ToArray());
+
+
+            var logLine = "This game is modded! Using QModManager with mods: " + usedMods;
+
+            Console.WriteLine(logLine);
+        }
+
+        public static void FlagGame()
+        {
+            HarmonyInstance.Create("alexejheroytb.terratechmods.qmodmanager").PatchAll(Assembly.GetExecutingAssembly());
         }
 
         private static QMod LoadMod(QMod mod)
@@ -164,5 +183,20 @@ namespace QModInstaller
 
             return mod;
         }
+    }
+
+    class Patches
+    {
+        /*[HarmonyPatch(typeof(UIScreenBugReport))]
+        [HarmonyPatch("PostIt")]
+        class UIScreenBugReport_PostIt
+        {
+            [HarmonyTranspiler]
+            [HarmonyPriority(int.MinValue)]
+            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr)
+            {
+                return null;
+            }
+        }*/
     }
 }

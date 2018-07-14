@@ -1,4 +1,6 @@
-﻿using Mono.Cecil;
+﻿#pragma warning disable IDE1006
+
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.IO;
@@ -59,7 +61,7 @@ namespace QModInstaller
 
                 // target the injection method
                 var type = game.MainModule.GetType("TankCamera");
-                var method = type.Methods.First(x => x.Name == "Start");
+                var method = type.Methods.First(x => x.Name == "Awake");
 
                 // inject
                 method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(OpCodes.Call, method.Module.Import(patchMethod)));
@@ -90,19 +92,35 @@ namespace QModInstaller
 
         public bool Remove()
         {
-            // if a backup exists
-            if (File.Exists(backupFilename))
+            try
             {
-                // remove the dirty dll
-                File.Delete(mainFilename);
+                // if a backup exists
+                if (File.Exists(backupFilename))
+                {
+                    // remove the dirty dll
+                    File.Delete(mainFilename);
 
-                // move the backup into its place
-                File.Move(backupFilename, mainFilename);
+                    // move the backup into its place
+                    File.Move(backupFilename, mainFilename);
 
-                return true;
+                    return true;
+                }
+
+                return false;
             }
-
-            return false;
+            catch (IOException e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    Console.WriteLine(e.InnerException.Message);
+                    Console.WriteLine(e.InnerException.StackTrace);
+                }
+                Console.ReadKey();
+                Environment.Exit(0);
+                return false;
+            }
         }
 
 
@@ -113,7 +131,7 @@ namespace QModInstaller
                 var game = AssemblyDefinition.ReadAssembly(mainFilename);
 
                 var rClass = "TankCamera";
-                var rMethod = "Start";
+                var rMethod = "Awake";
 
                 TypeDefinition type = null;
                 MethodDefinition method = null;
