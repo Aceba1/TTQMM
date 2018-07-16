@@ -49,9 +49,6 @@ Source: "QModManager\QModInstaller.dll"; DestDir: "{app}\TerraTechWin64_Data\Man
 Source: "QModManager\QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\CommandLine.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\CommandLine.xml"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\Mono.Cecil.Mdb.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\Mono.Cecil.Pdb.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\Mono.Cecil.Rocks.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\QModInstaller.dll.config"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\QModInstaller.pdb"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\QModManager.exe.config"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
