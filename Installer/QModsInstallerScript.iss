@@ -45,7 +45,6 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Files]
 Source: "QModManager\0Harmony.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\Mono.Cecil.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\Newtonsoft.Json.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\QModInstaller.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 Source: "QModManager\CommandLine.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
