@@ -99,15 +99,15 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)\0Harmony.dll" "D:\Mods\TerraTech Mods\QModManager\Installer\0Harmony.dll"
-copy /y "$(TargetDir)\Mono.Cecil.dll" "D:\Mods\TerraTech Mods\QModManager\Installer\Mono.Cecil.dll"
-copy /y "$(TargetDir)\QModInstaller.dll" "D:\Mods\TerraTech Mods\QModManager\Installer\QModInstaller.dll"
-copy /y "$(TargetDir)\QModManager.exe" "D:\Mods\TerraTech Mods\QModManager\Installer\QModManager.exe"
-copy /y "$(TargetDir)\CommandLine.dll" "D:\Mods\TerraTech Mods\QModManager\Installer\CommandLine.dll"
-copy /y "$(TargetDir)\CommandLine.xml" "D:\Mods\TerraTech Mods\QModManager\Installer\CommandLine.xml"
-copy /y "$(TargetDir)\QModInstaller.dll.config" "D:\Mods\TerraTech Mods\QModManager\Installer\QModInstaller.dll.config"
-copy /y "$(TargetDir)\QModInstaller.pdb" "D:\Mods\TerraTech Mods\QModManager\Installer\QModInstaller.pdb"
-copy /y "$(TargetDir)\QModManager.exe.config" "D:\Mods\TerraTech Mods\QModManager\Installer\QModManager.exe.config"
-copy /y "$(TargetDir)\QModManager.pdb" "D:\Mods\TerraTech Mods\QModManager\Installer\QModManager.pdb"</PostBuildEvent>
+    <PostBuildEvent>copy /y "$(TargetDir)0Harmony.dll" "$(SolutionDir)Installer\0Harmony.dll"
+copy /y "$(TargetDir)Mono.Cecil.dll" "$(SolutionDir)Installer\Mono.Cecil.dll"
+copy /y "$(TargetDir)QModInstaller.dll" "$(SolutionDir)Installer\QModInstaller.dll"
+copy /y "$(TargetDir)QModManager.exe" "$(SolutionDir)Installer\QModManager.exe"
+copy /y "$(TargetDir)CommandLine.dll" "$(SolutionDir)Installer\CommandLine.dll"
+copy /y "$(TargetDir)CommandLine.xml" "$(SolutionDir)Installer\CommandLine.xml"
+copy /y "$(TargetDir)QModInstaller.dll.config" "$(SolutionDir)Installer\QModInstaller.dll.config"
+copy /y "$(TargetDir)QModInstaller.pdb" "$(SolutionDir)Installer\QModInstaller.pdb"
+copy /y "$(TargetDir)QModManager.exe.config" "$(SolutionDir)Installer\QModManager.exe.config"
+copy /y "$(TargetDir)QModManager.pdb" "$(SolutionDir)Installer\QModManager.pdb"</PostBuildEvent>
   </PropertyGroup>
 </Project>
