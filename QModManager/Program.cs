@@ -106,7 +106,7 @@ namespace QModManager
             {
                 if (!isInjected)
                 {
-                    Console.WriteLine("No patch detected, install? (Yes|No) ");
+                    Console.Write("No patch detected, install? (Yes|No) ");
                     string consent = Console.ReadLine().Replace("'", string.Empty).ToLower();
                     if (consent == "yes" || consent == "y")
                     {
@@ -119,7 +119,7 @@ namespace QModManager
                 }
                 else
                 {
-                    Console.WriteLine("Patch already installed, remove? (Yes|No) ");
+                    Console.Write("Patch already installed, remove? (Yes|No) ");
                     string consent = Console.ReadLine().Replace("'", string.Empty).ToLower();
                     if (consent == "yes" || consent == "y")
                     {
