@@ -38,24 +38,18 @@ namespace QModManager
             if (parsedArgs.Keys.Contains("Directory"))
                 TerraTechDirectory = parsedArgs["Directory"];
 
-            string ManagedDirectory = TerraTechDirectory + @"\TerraTechWin64_Data\Managed";
-            if (!File.Exists(ManagedDirectory + @"\Assembly -CSharp.dll"))
+            string ManagedDirectory = Environment.CurrentDirectory;
+            if (!File.Exists(ManagedDirectory + @"\Assembly-CSharp.dll"))
             {
-                TerraTechDirectory = Environment.CurrentDirectory;
-                retry:;
-                ManagedDirectory = TerraTechDirectory + @"\TerraTechWin64_Data\Managed";
-                if (!File.Exists(ManagedDirectory + @"\Assembly-CSharp.dll"))
+                Console.Write("Could not find Assembly file.");
+                if (forceInstall || forceUninstall)
                 {
-                    if (forceInstall || forceUninstall)
-                    {
-                        Console.WriteLine("Could not find Assembly file. Canceling.");
-                        return;
-                    }
-                    Console.Write("Drag and drop, or type the path of the TerraTech executable here: ");
-                    TerraTechDirectory = Path.Combine(Console.ReadLine().Replace("\"", string.Empty), @"..");
-                    Console.WriteLine();
-                    goto retry;
+                    Console.WriteLine("Canceling.");
+                    return;
                 }
+                Console.WriteLine("\nPress any key to exit ...");
+                Console.ReadKey();
+                return;
             }
             QModInjector injector = new QModInjector(TerraTechDirectory, ManagedDirectory);
 
