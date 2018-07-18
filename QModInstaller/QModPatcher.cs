@@ -35,11 +35,34 @@ namespace QModInstaller
 
             patched = true;
 
+            AddLog("This game is modded! (Obviously)");
+
             if (!Directory.Exists(qModBaseDir))
             {
-                Console.WriteLine("QMOD WARN: QMod directory was not found");
-                Directory.CreateDirectory(qModBaseDir);
-                Console.WriteLine("QMOD INFO: Created QMod directory at {0}", qModBaseDir);
+                bool success = true;
+                AddLog("QMods directory was not found! Creating...");
+                try
+                {
+                    Directory.CreateDirectory(qModBaseDir);
+                }
+                catch (Exception e)
+                {
+                    success = false;
+                    AddLog("EXCEPTION CAUGHT!");
+                    AddLog(e.Message);
+                    AddLog(e.StackTrace);
+                    if (e.InnerException != null)
+                    {
+                        AddLog("INNER EXCEPTION:");
+                        AddLog(e.InnerException.Message);
+                        AddLog(e.InnerException.StackTrace);
+                    }
+                }
+                if (success)
+                {
+                    AddLog("QMods directory created successfully!");
+                }
+                Console.WriteLine(ParseLog());
                 return;
             }
 
@@ -54,20 +77,20 @@ namespace QModInstaller
 
                 if (!File.Exists(jsonFile))
                 {
-                    Console.WriteLine("QMOD ERR: Mod is missing a mod.json file");
+                    AddLog($"ERROR! No \"mod.json\" file found in folder \"{subDir}\"");
                     File.WriteAllText(jsonFile, JsonConvert.SerializeObject(new QMod()));
-                    Console.WriteLine("QMOD INFO: A template for mod.json was generated at {0}", jsonFile);
+                    AddLog("A template file was created");
                     continue;
                 }
 
                 QMod mod = QMod.FromJsonFile(Path.Combine(subDir, "mod.json"));
 
-                if (mod.Equals(null)) // QMod.FromJsonFile will throw parser errors
+                if (mod == (null))
                     continue;
 
-                if (mod.Enable.Equals(false))
+                if (mod.Enable == false)
                 {
-                    Console.WriteLine("QMOD INFO: {0} is disabled via config, skipping", mod.DisplayName);
+                    AddLog($"{mod.DisplayName} is disabled via config, skipping");
                     continue;
                 }
 
@@ -75,7 +98,7 @@ namespace QModInstaller
 
                 if (!File.Exists(modAssemblyPath))
                 {
-                    Console.WriteLine("QMOD ERR: No matching dll found at {0} for {1}", modAssemblyPath, mod.Id);
+                    AddLog($"ERROR! No matching dll found at \"{modAssemblyPath}\" for mod \"{mod.DisplayName}\"");
                     continue;
                 }
 
@@ -122,13 +145,13 @@ namespace QModInstaller
             mods.AddRange(lastMods);
             mods.Sort();
 
-            var modNames = mods.Select(mod => mod.Id);
-            var usedMods = string.Join(", ", modNames.ToArray());
+            var modNames = mods.Select(mod => new { mod.Id, mod.DisplayName });
 
+            AddLog("Installed mods:");
+            foreach (var mod in modNames)
+                AddLog("- " + mod.DisplayName + " (" + mod.Id + ")");
 
-            var logLine = "This game is modded! Using QModManager with mods: " + usedMods;
-
-            Console.WriteLine(logLine);
+            Console.WriteLine(ParseLog());
         }
 
         public static void FlagGame()
@@ -142,7 +165,7 @@ namespace QModInstaller
 
             if (string.IsNullOrEmpty(mod.EntryMethod))
             {
-                Console.WriteLine("QMOD ERR: No EntryMethod specified for {0}", mod.Id);
+                AddLog($"ERROR! No EntryMethod specified for mod {mod.DisplayName}");
             }
             else
             {
@@ -157,31 +180,116 @@ namespace QModInstaller
                 }
                 catch (ArgumentNullException e)
                 {
-                    Console.WriteLine("QMOD ERR: Could not parse EntryMethod {0} for {1}", mod.AssemblyName, mod.Id);
-                    Console.WriteLine(e.InnerException.Message);
+                    AddLog($"ERROR! Could not parse entry method {mod.AssemblyName} for mod {mod.DisplayName}");
+                    if (e.InnerException != null)
+                    {
+                        AddLog(e.InnerException.Message);
+                        AddLog(e.InnerException.StackTrace);
+                    }
                     return null;
                 }
                 catch (TargetInvocationException e)
                 {
-                    Console.WriteLine("QMOD ERR: Invoking the specified EntryMethod {0} failed for {1}", mod.EntryMethod, mod.Id);
-                    Console.WriteLine(e.InnerException.Message);
+                    AddLog($"ERROR! Invoking the specified entry method {mod.EntryMethod} failed for mod {mod.Id}");
+                    if (e.InnerException != null)
+                    {
+                        AddLog(e.InnerException.Message);
+                        AddLog(e.InnerException.StackTrace);
+                    }
                     return null;
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("QMOD ERR: Something strange happened");
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.StackTrace);
+                    AddLog("ERROR! An unexpected error occurred!");
+                    AddLog(e.Message);
+                    AddLog(e.StackTrace);
                     if (e.InnerException != null)
                     {
-                        Console.WriteLine(e.InnerException.Message);
-                        Console.WriteLine(e.InnerException.StackTrace);
+                        AddLog(e.InnerException.Message);
+                        AddLog(e.InnerException.StackTrace);
                     }
                     return null;
                 }
             }
 
             return mod;
+        }
+
+        private static List<string> rawLines = new List<string>();
+        private static string output = "";
+
+        private static void AddLog(string line)
+        {
+            rawLines.Add(line);
+        }
+
+        private static string ParseLog()
+        {
+            int maxLength = 0;
+            foreach (string line in rawLines)
+            {
+                if (line.Length > maxLength)
+                    maxLength = line.Length;
+            }
+            string separator = "";
+            for (int i = maxLength + 3; i >= 0; i--)
+            {
+                separator += "#";
+            }
+            output += separator + "\n";
+            string title = " QMODMANAGER LOG ";
+            int spacingLength = separator.Length - title.Length;
+            if (!IsOdd(spacingLength))
+            {
+                int length = spacingLength / 2;
+                string line = "";
+                string toAdd = "";
+                for (int i = length - 1; i >= 0; i--)
+                {
+                    toAdd += "#";
+                }
+                line += toAdd + title + toAdd;
+                output += line + "\n";
+            }
+            else
+            {
+                int length = spacingLength / 2; // This provides the "smaller half" of the number
+                string line = "";
+                string toAdd = "";
+                for (int i = length - 1; i >= 0; i--)
+                {
+                    toAdd += "#";
+                }
+                line += toAdd + title + toAdd + "#";
+                output += line + "\n";
+            }
+            output += separator + "\n";
+            output += Blank(maxLength);
+            foreach (string line in rawLines)
+            {
+                output += "# " + line;
+                for (int i = line.Length; i < maxLength; i++)
+                    output += " ";
+                output += " #\n";
+            }
+            output += Blank(maxLength);
+            output += separator;
+            return output;
+        }
+
+        public static bool IsOdd(int value)
+        {
+            return value % 2 != 0;
+        }
+
+        public static string Blank(int maxLength)
+        {
+            string output = "";
+            output += "#  ";
+            for (int i = " ".Length; i < maxLength; i++)
+                output += " ";
+            output += " #\n";
+            return output;
         }
     }
 
