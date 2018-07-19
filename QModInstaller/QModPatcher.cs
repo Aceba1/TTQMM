@@ -211,7 +211,6 @@ namespace QModInstaller
         }
 
         private static List<string> rawLines = new List<string>();
-        private static string output = "";
 
         private static void AddLog(string line)
         {
@@ -220,6 +219,7 @@ namespace QModInstaller
 
         private static string ParseLog()
         {
+            string output = "";
             int maxLength = 0;
             foreach (string line in rawLines)
             {

@@ -43,16 +43,10 @@ WizardSelectDir=Select TerraTech Install Location
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "QModManager\0Harmony.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\Mono.Cecil.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\QModInstaller.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\CommandLine.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\CommandLine.xml"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\QModInstaller.dll.config"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\QModInstaller.pdb"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\QModManager.exe.config"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
-Source: "QModManager\QModManager.pdb"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
+Source: "0Harmony.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
+Source: "Mono.Cecil.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
+Source: "QModInstaller.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
+Source: "QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 
 [Run]
 Filename: "{app}\TerraTechWin64_Data\Managed\QModManager.exe"; Parameters: "-i"
