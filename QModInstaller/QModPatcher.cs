@@ -243,11 +243,11 @@ namespace QModInstaller
             //And add the first bit of the value. (1 or 0 if it is odd or even)
 
             string toAdd = "";
-            for (int i = length - 1; i >= 0; i--)
+            for (int i = length - 1; i > 0; i--)
             {
                 toAdd += "#";
             }
-            output += toAdd + title + toAdd + "\n";
+            output += toAdd + ((spacingLength & 1) == 0 ? "#" : "") + title + toAdd + "#\n";
             output += separator + "\n";
             output += Blank(maxLength);
             foreach (string line in rawLines)
