@@ -14,6 +14,8 @@ namespace QModInstaller
         private static List<QMod> loadedMods = new List<QMod>();
         private static bool patched = false;
 
+        public static Version version = new Version(1, 3);
+
         public static void Patch()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
@@ -35,7 +37,7 @@ namespace QModInstaller
 
             patched = true;
 
-            AddLog("This game is modded (QModManager)");
+            AddLog($"This game is modded! (QModManager {version})");
 
             if (!Directory.Exists(qModBaseDir))
             {
@@ -149,10 +151,10 @@ namespace QModInstaller
             Console.WriteLine(ParseLog());
         }
 
-        public static void FlagGame()
+        /*public static void FlagGame()
         {
             HarmonyInstance.Create("alexejheroytb.terratechmods.qmodmanager").PatchAll(Assembly.GetExecutingAssembly());
-        }
+        }*/
 
         private static QMod LoadMod(QMod mod)
         {
@@ -227,7 +229,7 @@ namespace QModInstaller
                     maxLength = line.Length;
             }
             string separator = "";
-            string title = " QMODMANAGER LOG ";
+            string title = " QMODMANAGER {version} ";
             if (maxLength + 4 < title.Length) maxLength = title.Length;
             int spacingLength = maxLength + 4 - title.Length;
             for (int i = maxLength + 3; i >= 0; i--)
@@ -271,9 +273,9 @@ namespace QModInstaller
         }
     }
 
-    class Patches
+    /*class Patches
     {
-        /*[HarmonyPatch(typeof(UIScreenBugReport))]
+        [HarmonyPatch(typeof(UIScreenBugReport))]
         [HarmonyPatch("PostIt")]
         class UIScreenBugReport_PostIt
         {
@@ -283,6 +285,6 @@ namespace QModInstaller
             {
                 return null;
             }
-        }*/
-    }
+        }
+    }*/
 }
