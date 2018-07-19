@@ -4,6 +4,6 @@
   "Author": "Aceba1",
   "Version": "0.0.1",
   "Enable": true,
-  "AssemblyName": "MergedClassLibrary2.dll",
+  "AssemblyName": "Examples.dll",
   "EntryMethod": "ClassLibrary2.QPatch.Main",
 }
