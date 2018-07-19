@@ -100,22 +100,31 @@ namespace QModManager
             {
                 if (!isInjected)
                 {
-                    Console.Write("No patch detected, install? (Yes|No) ");
-                    string consent = Console.ReadLine().Replace("'", string.Empty).ToLower();
-                    if (consent == "yes" || consent == "y")
+                    Console.Write("No patch detected, install? [Y/N] ");
+                    var key = Console.ReadKey().Key;
+                    Console.WriteLine();
+                    if (key == ConsoleKey.Y)
                     {
-                        Console.Write("Installing... ");
+                        Console.WriteLine("Installing... ");
                         if (injector.Inject())
                             Console.WriteLine("QMods was installed!");
                         else
                             Console.WriteLine("There was a problem installing QMods.\nPlease contact us on Discord (discord.gg/WsvbVrP)");
                     }
+                    else if (key == ConsoleKey.N)
+                    {
+                        Console.WriteLine("Installation aborted.");
+                        Console.WriteLine("Press any key to exit...");
+                        Console.ReadKey();
+                        Environment.Exit(0);
+                    }
                 }
                 else
                 {
-                    Console.Write("Patch already installed, remove? (Yes|No) ");
-                    string consent = Console.ReadLine().Replace("'", string.Empty).ToLower();
-                    if (consent == "yes" || consent == "y")
+                    Console.Write("Patch already installed, remove? [Y/N] ");
+                    var key = Console.ReadKey().Key;
+                    Console.WriteLine();
+                    if (key == ConsoleKey.Y)
                     {
                         Console.Write("Removing... ");
                         if (injector.Remove())
@@ -123,9 +132,16 @@ namespace QModManager
                         else
                             Console.WriteLine("There was a problem removing QMods. You may have to reinstall / verify the game's files\nPlease contact us on Discord (discord.gg/WsvbVrP)");
                     }
+                    else if (key == ConsoleKey.N)
+                    {
+                        Console.WriteLine("Press any key to exit...");
+                        Console.ReadKey();
+                        Environment.Exit(0);
+                    }
+
                 }
 
-                Console.WriteLine("Press any key to exit ...");
+                Console.WriteLine("Press any key to exit...");
 
                 Console.ReadKey();
             }
