@@ -229,7 +229,7 @@ namespace QModInstaller
                     maxLength = line.Length;
             }
             string separator = "";
-            string title = " QMODMANAGER {version} ";
+            string title = $" QMODMANAGER {version} ";
             if (maxLength + 4 < title.Length) maxLength = title.Length;
             int spacingLength = maxLength + 4 - title.Length;
             for (int i = maxLength + 3; i >= 0; i--)
