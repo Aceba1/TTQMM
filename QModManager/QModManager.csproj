@@ -134,12 +134,6 @@
     <PostBuildEvent>copy /y "$(TargetDir)0Harmony.dll" "$(SolutionDir)Installer\0Harmony.dll"
 copy /y "$(TargetDir)Mono.Cecil.dll" "$(SolutionDir)Installer\Mono.Cecil.dll"
 copy /y "$(TargetDir)QModInstaller.dll" "$(SolutionDir)Installer\QModInstaller.dll"
-copy /y "$(TargetDir)QModManager.exe" "$(SolutionDir)Installer\QModManager.exe"
-copy /y "$(TargetDir)CommandLine.dll" "$(SolutionDir)Installer\CommandLine.dll"
-copy /y "$(TargetDir)CommandLine.xml" "$(SolutionDir)Installer\CommandLine.xml"
-copy /y "$(TargetDir)QModInstaller.dll.config" "$(SolutionDir)Installer\QModInstaller.dll.config"
-copy /y "$(TargetDir)QModInstaller.pdb" "$(SolutionDir)Installer\QModInstaller.pdb"
-copy /y "$(TargetDir)QModManager.exe.config" "$(SolutionDir)Installer\QModManager.exe.config"
-copy /y "$(TargetDir)QModManager.pdb" "$(SolutionDir)Installer\QModManager.pdb"</PostBuildEvent>
+copy /y "$(TargetDir)QModManager.exe" "$(SolutionDir)Installer\QModManager.exe"</PostBuildEvent>
   </PropertyGroup>
 </Project>
