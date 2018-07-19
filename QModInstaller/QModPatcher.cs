@@ -35,19 +35,18 @@ namespace QModInstaller
 
             patched = true;
 
-            AddLog("This game is modded! (Obviously)");
+            AddLog("This game is modded (QModManager)");
 
             if (!Directory.Exists(qModBaseDir))
             {
-                bool success = true;
                 AddLog("QMods directory was not found! Creating...");
                 try
                 {
                     Directory.CreateDirectory(qModBaseDir);
+                    AddLog("QMods directory created successfully!");
                 }
                 catch (Exception e)
                 {
-                    success = false;
                     AddLog("EXCEPTION CAUGHT!");
                     AddLog(e.Message);
                     AddLog(e.StackTrace);
@@ -57,10 +56,6 @@ namespace QModInstaller
                         AddLog(e.InnerException.Message);
                         AddLog(e.InnerException.StackTrace);
                     }
-                }
-                if (success)
-                {
-                    AddLog("QMods directory created successfully!");
                 }
                 Console.WriteLine(ParseLog());
                 return;
@@ -232,37 +227,25 @@ namespace QModInstaller
                     maxLength = line.Length;
             }
             string separator = "";
+            string title = " QMODMANAGER LOG ";
+            if (maxLength + 4 < title.Length) maxLength = title.Length;
+            int spacingLength = maxLength + 4 - title.Length;
             for (int i = maxLength + 3; i >= 0; i--)
             {
                 separator += "#";
             }
             output += separator + "\n";
-            string title = " QMODMANAGER LOG ";
-            int spacingLength = separator.Length - title.Length;
-            if (!IsOdd(spacingLength))
+
+            int length = (spacingLength >> 1) + (spacingLength & 1); // Gets the roofed half using bitwise operators:
+            //Shift bits right by 1 (which divides by 2, floored)
+            //And add the first bit of the value. (1 or 0 if it is odd or even)
+
+            string toAdd = "";
+            for (int i = length - 1; i >= 0; i--)
             {
-                int length = spacingLength / 2;
-                string line = "";
-                string toAdd = "";
-                for (int i = length - 1; i >= 0; i--)
-                {
-                    toAdd += "#";
-                }
-                line += toAdd + title + toAdd;
-                output += line + "\n";
+                toAdd += "#";
             }
-            else
-            {
-                int length = spacingLength / 2; // This provides the "smaller half" of the number
-                string line = "";
-                string toAdd = "";
-                for (int i = length - 1; i >= 0; i--)
-                {
-                    toAdd += "#";
-                }
-                line += toAdd + title + toAdd + "#";
-                output += line + "\n";
-            }
+            output += toAdd + title + toAdd + "\n";
             output += separator + "\n";
             output += Blank(maxLength);
             foreach (string line in rawLines)
@@ -275,11 +258,6 @@ namespace QModInstaller
             output += Blank(maxLength);
             output += separator;
             return output;
-        }
-
-        public static bool IsOdd(int value)
-        {
-            return value % 2 != 0;
         }
 
         public static string Blank(int maxLength)
