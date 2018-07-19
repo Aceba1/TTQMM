@@ -229,7 +229,7 @@ namespace QModInstaller
                     maxLength = line.Length;
             }
             string separator = "";
-            string title = " QMODMANAGER {version} ";
+            string title = $" QMODMANAGER {version} ";
             if (maxLength + 4 < title.Length) maxLength = title.Length;
             int spacingLength = maxLength + 4 - title.Length;
             for (int i = maxLength + 3; i >= 0; i--)
@@ -243,11 +243,11 @@ namespace QModInstaller
             //And add the first bit of the value. (1 or 0 if it is odd or even)
 
             string toAdd = "";
-            for (int i = length - 1; i >= 0; i--)
+            for (int i = length - 1; i > 0; i--)
             {
                 toAdd += "#";
             }
-            output += toAdd + title + toAdd + "\n";
+            output += toAdd + ((spacingLength & 1) == 0 ? "#" : "") + title + toAdd + "#\n";
             output += separator + "\n";
             output += Blank(maxLength);
             foreach (string line in rawLines)
