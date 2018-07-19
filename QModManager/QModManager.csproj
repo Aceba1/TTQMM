@@ -131,8 +131,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)0Harmony.dll" "$(SolutionDir)Installer\0Harmony.dll"
-copy /y "$(TargetDir)Mono.Cecil.dll" "$(SolutionDir)Installer\Mono.Cecil.dll"
+    <PostBuildEvent>copy /y "$(TargetDir)Mono.Cecil.dll" "$(SolutionDir)Installer\Mono.Cecil.dll"
 copy /y "$(TargetDir)QModInstaller.dll" "$(SolutionDir)Installer\QModInstaller.dll"
 copy /y "$(TargetDir)QModManager.exe" "$(SolutionDir)Installer\QModManager.exe"</PostBuildEvent>
   </PropertyGroup>
