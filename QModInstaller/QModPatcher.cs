@@ -14,6 +14,8 @@ namespace QModInstaller
         private static List<QMod> loadedMods = new List<QMod>();
         private static bool patched = false;
 
+        public static Version version = new Version(1, 3);
+
         public static void Patch()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
@@ -35,19 +37,18 @@ namespace QModInstaller
 
             patched = true;
 
-            AddLog("This game is modded! (Obviously)");
+            AddLog($"This game is modded! (QModManager {version})");
 
             if (!Directory.Exists(qModBaseDir))
             {
-                bool success = true;
                 AddLog("QMods directory was not found! Creating...");
                 try
                 {
                     Directory.CreateDirectory(qModBaseDir);
+                    AddLog("QMods directory created successfully!");
                 }
                 catch (Exception e)
                 {
-                    success = false;
                     AddLog("EXCEPTION CAUGHT!");
                     AddLog(e.Message);
                     AddLog(e.StackTrace);
@@ -57,10 +58,6 @@ namespace QModInstaller
                         AddLog(e.InnerException.Message);
                         AddLog(e.InnerException.StackTrace);
                     }
-                }
-                if (success)
-                {
-                    AddLog("QMods directory created successfully!");
                 }
                 Console.WriteLine(ParseLog());
                 return;
@@ -154,10 +151,10 @@ namespace QModInstaller
             Console.WriteLine(ParseLog());
         }
 
-        public static void FlagGame()
+        /*public static void FlagGame()
         {
             HarmonyInstance.Create("alexejheroytb.terratechmods.qmodmanager").PatchAll(Assembly.GetExecutingAssembly());
-        }
+        }*/
 
         private static QMod LoadMod(QMod mod)
         {
@@ -237,7 +234,7 @@ namespace QModInstaller
                 separator += "#";
             }
             output += separator + "\n";
-            string title = " QMODMANAGER LOG ";
+            string title = $" QMODMANAGER {version} ";
             int spacingLength = separator.Length - title.Length;
             if (!IsOdd(spacingLength))
             {
@@ -293,9 +290,9 @@ namespace QModInstaller
         }
     }
 
-    class Patches
+    /*class Patches
     {
-        /*[HarmonyPatch(typeof(UIScreenBugReport))]
+        [HarmonyPatch(typeof(UIScreenBugReport))]
         [HarmonyPatch("PostIt")]
         class UIScreenBugReport_PostIt
         {
@@ -305,6 +302,6 @@ namespace QModInstaller
             {
                 return null;
             }
-        }*/
-    }
+        }
+    }*/
 }
