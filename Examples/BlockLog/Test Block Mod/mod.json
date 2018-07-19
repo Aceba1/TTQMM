@@ -1,0 +1,9 @@
+{
+  "Id": "ttqmm.examples.blocklog",
+  "DisplayName": "Block Log",
+  "Author": "Aceba1",
+  "Version": "0.0.1",
+  "Enable": true,
+  "AssemblyName": "MergedClassLibrary2.dll",
+  "EntryMethod": "ClassLibrary2.QPatch.Main",
+}
