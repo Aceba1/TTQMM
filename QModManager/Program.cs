@@ -30,26 +30,40 @@ namespace QModManager
                 }
             }
 
-            //string SubnauticaDirectory = @"C:\Program Files (x86)\Steam\steamapps\common\Subnautica";
-            string SubnauticaDirectory = Path.Combine(Environment.CurrentDirectory, @"..\..");
+            //string SubnauticaDirectory = @"C:\Program Files (x86)\Steam\steamapps\common\TerraTech";
+            string TerraTechDirectory = Path.Combine(Environment.CurrentDirectory, @"..\..");
+
+            if (parsedArgs.Keys.Contains("TerraTechDirectory"))
+                TerraTechDirectory = parsedArgs["TerraTechDirectory"];
+            if (parsedArgs.Keys.Contains("Directory"))
+                TerraTechDirectory = parsedArgs["Directory"];
+
             string ManagedDirectory = Environment.CurrentDirectory;
-
-            if (parsedArgs.Keys.Contains("SubnauticaDirectory"))
-                SubnauticaDirectory = parsedArgs["SubnauticaDirectory"];
-
-            QModInjector injector = new QModInjector(SubnauticaDirectory, ManagedDirectory);
+            if (!File.Exists(ManagedDirectory + @"\Assembly-CSharp.dll"))
+            {
+                Console.Write("Could not find Assembly file.");
+                if (forceInstall || forceUninstall)
+                {
+                    Console.WriteLine("Canceling.");
+                    return;
+                }
+                Console.WriteLine("\nPress any key to exit ...");
+                Console.ReadKey();
+                return;
+            }
+            QModInjector injector = new QModInjector(TerraTechDirectory, ManagedDirectory);
 
             bool isInjected = injector.IsPatcherInjected();
             if (forceInstall)
             {
                 if (!isInjected)
                 {
-					Console.WriteLine("Installing QMods...");
-					injector.Inject();
+                    Console.WriteLine("Installing QMods...");
+                    injector.Inject();
                 }
                 else
                 {
-                    Console.WriteLine("Tried to Force Install, was already injected. Skipping installation.");
+                    Console.WriteLine("Tried to force install, but it was already injected. Skipping installation.");
                     return;
                 }
             }
@@ -57,43 +71,77 @@ namespace QModManager
             {
                 if (isInjected)
                 {
-					Console.WriteLine("Uninstalling QMods...");
-					injector.Remove();
+                    Console.WriteLine("Uninstalling QMods...");
+                    try
+                    {
+                        injector.Remove();
+                    }
+                    catch (NullReferenceException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        Console.WriteLine(e.StackTrace);
+                        if (e.InnerException != null)
+                        {
+                            Console.WriteLine(e.InnerException.Message);
+                            Console.WriteLine(e.InnerException.StackTrace);
+                        }
+                        Console.ReadKey();
+                        Environment.Exit(0);
+                        return;
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Tried to Force Uninstall, was not injected. Skipping uninstallation.");
+                    Console.WriteLine("Tried to force uninstall, but it was not injected. Skipping uninstallation.");
                     return;
                 }
             }
             else
             {
-                if (!injector.IsPatcherInjected())
+                if (!isInjected)
                 {
-                    Console.WriteLine("No patch detected, type 'yes' to install: ");
-                    string consent = Console.ReadLine().Replace("'", "");
-                    if (consent == "yes" || consent == "YES")
+                    Console.Write("No patch detected, install? [Y/N] ");
+                    var key = Console.ReadKey().Key;
+                    Console.WriteLine();
+                    if (key == ConsoleKey.Y)
                     {
+                        Console.WriteLine("Installing... ");
                         if (injector.Inject())
                             Console.WriteLine("QMods was installed!");
                         else
-                            Console.WriteLine("Error installed QMods. Please contact us on Discord");
+                            Console.WriteLine("There was a problem installing QMods.\nPlease contact us on Discord (discord.gg/WsvbVrP)");
+                    }
+                    else if (key == ConsoleKey.N)
+                    {
+                        Console.WriteLine("Installation aborted.");
+                        Console.WriteLine("Press any key to exit...");
+                        Console.ReadKey();
+                        Environment.Exit(0);
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Patch already installed! Type 'yes' to remove: ");
-                    string consent = Console.ReadLine().Replace("'", "");
-                    if (consent == "yes" || consent == "YES")
+                    Console.Write("Patch already installed, remove? [Y/N] ");
+                    var key = Console.ReadKey().Key;
+                    Console.WriteLine();
+                    if (key == ConsoleKey.Y)
                     {
+                        Console.Write("Removing... ");
                         if (injector.Remove())
                             Console.WriteLine("QMods was removed!");
                         else
-                            Console.WriteLine("Error removing QMods. Please contact us on Discord");
+                            Console.WriteLine("There was a problem removing QMods. You may have to reinstall / verify the game's files\nPlease contact us on Discord (discord.gg/WsvbVrP)");
                     }
+                    else if (key == ConsoleKey.N)
+                    {
+                        Console.WriteLine("Press any key to exit...");
+                        Console.ReadKey();
+                        Environment.Exit(0);
+                    }
+
                 }
 
-                Console.WriteLine("Press any key to exit ...");
+                Console.WriteLine("Press any key to exit...");
 
                 Console.ReadKey();
             }

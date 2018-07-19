@@ -2,24 +2,24 @@
 
 File and details available at 
 
-https://www.nexusmods.com/subnautica/mods/16/
+https://www.nexusmods.com/terratech/mods/1/
 ___
 
 ### Note to developers
 
 To support your mod for the QMods system, you need to learn how `mod.json` is implemented (or will be, once complete). The critical keys are:  
 
-```
+```csharp
 {
-  "Id":"snhardcoreplus.mod",
-  "DisplayName":"Subnautica Hardcore Plus",
-  "Author":"Qwiso",
-  "Version":"1.0.0",
-  "Requires":[],
-  "Enable":true,
-  "AssemblyName":"SNHardcorePlus.dll",
-  "EntryMethod":"SNHardcorePlus.QPatch.Patch",
-  "Config":{}
+  "Id": "id.ShouldNotContainAnySpaces",
+  "DisplayName": "The display name of your mod. This should be formatted",
+  "Author": "The name of the author",
+  "Version": "1.0.0",
+  "Requires":[], // You can leave this out
+  "Enable": true,
+  "AssemblyName": "dllName.dll",
+  "EntryMethod": "YOURNAMESPACE.QPatch.Patch", // Look below
+  "Config": {}
 }
 ```
 
