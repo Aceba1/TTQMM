@@ -23,10 +23,10 @@ namespace QModInstaller
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
             {
                 var allDlls = new DirectoryInfo(qModBaseDir).GetFiles("*.dll", SearchOption.AllDirectories);
-                foreach(var dll in allDlls)
+                foreach (var dll in allDlls)
                 {
                     Console.WriteLine(Path.GetFileNameWithoutExtension(dll.Name) + " " + args.Name);
-                    if(args.Name.Contains(Path.GetFileNameWithoutExtension(dll.Name)))
+                    if (args.Name.Contains(Path.GetFileNameWithoutExtension(dll.Name)))
                     {
                         return Assembly.LoadFrom(dll.FullName);
                     }
@@ -110,7 +110,7 @@ namespace QModInstaller
                     lastMods.Add(mod);
                     continue;
                 }
-                else if(mod.Priority.Equals("First"))
+                else if (mod.Priority.Equals("First"))
                 {
                     firstMods.Add(mod);
                     continue;
@@ -132,15 +132,15 @@ namespace QModInstaller
                     loadedMods.Add(LoadMod(mod));
             }
 
-            foreach(var mod in otherMods)
+            foreach (var mod in otherMods)
             {
                 if (mod != null)
                     loadedMods.Add(LoadMod(mod));
             }
 
-            foreach(var mod in lastMods)
+            foreach (var mod in lastMods)
             {
-                if(mod != null)
+                if (mod != null)
                     loadedMods.Add(LoadMod(mod));
             }
 
@@ -159,13 +159,17 @@ namespace QModInstaller
             foreach (var mod in modNames)
                 AddLog("- " + mod.DisplayName + " (" + mod.Id + ")");
 
+            FlagGame();
             Console.WriteLine(ParseLog());
         }
 
-        /*public static void FlagGame()
+        public static void FlagGame()
         {
-            HarmonyInstance.Create("alexejheroytb.terratechmods.qmodmanager").PatchAll(Assembly.GetExecutingAssembly());
-        }*/
+            string Id = "qmm.internal.modflag";
+            string Name = "Internal Flagging";
+            HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
+            AddLog("- " + Name + " (" + Id + ")");
+        }
 
         private static QMod LoadMod(QMod mod)
         {
@@ -316,19 +320,29 @@ namespace QModInstaller
             return output;
         }
     }
-
-    /*class Patches
+    class Patches
     {
         [HarmonyPatch(typeof(UIScreenBugReport))]
-        [HarmonyPatch("PostIt")]
+        [HarmonyPatch("Post")]
         class UIScreenBugReport_PostIt
         {
-            [HarmonyTranspiler]
-            [HarmonyPriority(int.MinValue)]
-            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instr)
+            static void Prefix(UIScreenBugReport __instance)
             {
-                return null;
+                UnityEngine.Debug.Log("Bug report UI screen sending!");
+                var m_Body = Traverse.Create(__instance).Field("m_Body");
+                var Text = m_Body.Property("text");
+                var text = m_Body.Field("m_Text");
+                string value = text.GetValue<string>();
+                if (!value.ToLower().Contains("this game is modded"))
+                {
+                    value += "This game is modded\n\n";
+                    UnityEngine.Debug.Log("Couldn't find modded flag! Adding");
+                    Text.SetValue(value);
+                    text.SetValue(value);
+                    Text.SetValue(value);
+                    text.SetValue(value);
+                }
             }
         }
-    }*/
+    }
 }

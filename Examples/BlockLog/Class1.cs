@@ -12,10 +12,12 @@ namespace ClassLibrary2
             this.log = this.log + str + "\n";
             this.logLines++;
         }
+
         public GuiClass()
         {
             GuiClass._inst = this;
         }
+
         private void OnGUI()
         {
             if (this.ShowGUI)
@@ -23,19 +25,21 @@ namespace ClassLibrary2
                 GUI.Window(0, this.Window, new GUI.WindowFunction(this.GUIWindow), "Block Spawn Log");
                 return;
             }
-            GUI.Button(new Rect(this.Window.width - 15f, 0f, 15f, 15f), "O");
+            if (GUI.Button(new Rect(this.Window.width - 15f, 0f, 15f, 15f), "-")) ShowGUI = true;
         }
+
         private void GUIWindow(int ID)
         {
-            int num = Mathf.Max(20 * this.logLines - 400, 66);
-            this.scroll = GUI.BeginScrollView(new Rect(0f, 15f, 400f, 65f), this.scroll, new Rect(0f, 0f, 380f, (float)num));
-            GUI.TextArea(new Rect(0f, 0f, 385f, (float)num), this.log);
+            float num = Mathf.Max(15f * this.logLines + 15f, 66f);
+            this.scroll = GUI.BeginScrollView(new Rect(0f, 15f, 400f, 65f), this.scroll, new Rect(0f, 0f, 380f, num));
+            GUI.TextArea(new Rect(0f, 0f, 385f, num), this.log);
             GUI.EndScrollView();
             if (GUI.Button(new Rect(this.Window.width - 15f, 0f, 15f, 15f), "X"))
             {
                 this.ShowGUI = false;
             }
         }
+
         private Rect Window = new Rect(0f, 0f, 400f, 80f);
         private Vector2 scroll = Vector2.zero;
         public string log = "";
@@ -43,6 +47,7 @@ namespace ClassLibrary2
         public static GuiClass _inst;
         private bool ShowGUI;
     }
+
     [HarmonyPatch("OnSpawn")]
     [HarmonyPatch(typeof(TankBlock))]
     internal class Patch1
@@ -52,6 +57,7 @@ namespace ClassLibrary2
             GuiClass._inst.Append(__instance.BlockType.ToString() + " spawned");
         }
     }
+
     internal class QPatch
     {
         public static void Main()
