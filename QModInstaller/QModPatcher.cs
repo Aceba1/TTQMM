@@ -153,11 +153,15 @@ namespace QModInstaller
             mods.AddRange(lastMods);
             mods.Sort();
 
-            var modNames = mods.Select(mod => new { mod.Id, mod.DisplayName });
-
+            AddLog(" ");
             AddLog("Installed mods:");
-            foreach (var mod in modNames)
-                AddLog("- " + mod.DisplayName + " (" + mod.Id + ")");
+
+            string elapsed = "";
+            foreach (var mod in mods)
+            {
+                elapsedTimes.TryGetValue(mod, out elapsed);
+                AddLog($"- {mod.DisplayName} ({mod.Id})");
+            }
 
             FlagGame();
             Console.WriteLine(ParseLog());
@@ -170,6 +174,8 @@ namespace QModInstaller
             HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
             AddLog("- " + Name + " (" + Id + ")");
         }
+
+        private static Dictionary<QMod, string> elapsedTimes = new Dictionary<QMod, string>();
 
         private static QMod LoadMod(QMod mod)
         {
@@ -214,14 +220,7 @@ namespace QModInstaller
                         elapsedTime = String.Format("{0:00}h{1:00}m{2:00}s{3:00}ms", sw.Elapsed.Hours, sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
                     string _modname = (!String.IsNullOrEmpty(mod.Id) ? mod.Id : mod.AssemblyName);
                     // Log elapsed time
-                    if (elapsedTime == "")
-                    {
-                        AddLog($"Mod \"{_modname}\" loaded IMMEDIATELY! This shouldn't even be possible ;)");
-                    }
-                    else
-                    {
-                        AddLog($"Mod \"{_modname}\" took {elapsedTime} to load.");
-                    }
+                    elapsedTimes.Add(mod, elapsedTime);
                 }
                 catch (ArgumentNullException e)
                 {
