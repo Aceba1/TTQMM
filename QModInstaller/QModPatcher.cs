@@ -357,7 +357,7 @@ namespace QModInstaller
             internal static void Prefix(UIScreenBugReport __instance)
             {
                 Text m_Body = __instance.GetInstanceField("m_Body") as Text;
-                m_Body.text = $"This game is modded! Using QModManager {QModPatcher.version} (Check the log for a list of mods)\n\n" + m_Body.text;
+                m_Body.text = $"This game is modded! Using QModManager {QModPatcher.version} (Check the output log for a complete list of installed mods and their load time)\n\n" + m_Body.text;
                 __instance.SetInstanceField("m_Body", m_Body);
             }
         }
