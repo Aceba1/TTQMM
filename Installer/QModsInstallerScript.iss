@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "QModManager (TerraTech)"
-#define MyAppVersion "1.2.1"
+#define MyAppVersion "1.3"
 #define MyAppPublisher "AlexejheroYTB"
 #define MyAppURL "https://github.com/AlexejheroYTB/TerraTech-QModManager"
 
@@ -96,5 +96,6 @@ begin
 			end;
 		end;
 	end;
-  Result := 'Remove this';
+	
+	Result := 'Remove this';
 end;

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,6 +14,7 @@ namespace QModInstaller
         private static string qModBaseDir = Environment.CurrentDirectory + @"\QMods";
         private static List<QMod> loadedMods = new List<QMod>();
         private static bool patched = false;
+        private static Stopwatch sw = null; // Used for performance review.
 
         public static Version version = new Version(1, 3);
 
@@ -41,6 +43,7 @@ namespace QModInstaller
 
             if (!Directory.Exists(qModBaseDir))
             {
+
                 AddLog("QMods directory was not found! Creating...");
                 try
                 {
@@ -119,6 +122,10 @@ namespace QModInstaller
                 }
             }
 
+            // Enable Stopwatch just before loading mods.
+            if (sw == null)
+                sw = new Stopwatch();
+
             foreach (var mod in firstMods)
             {
                 if (mod != null)
@@ -137,6 +144,10 @@ namespace QModInstaller
                     loadedMods.Add(LoadMod(mod));
             }
 
+            // Disable Stopwatch when all loading is done.
+            if (sw.IsRunning)
+                sw.Stop();
+            sw = null;
             var mods = firstMods;
             mods.AddRange(otherMods);
             mods.AddRange(lastMods);
@@ -172,12 +183,45 @@ namespace QModInstaller
             {
                 try
                 {
+                    // Reset Stopwatch
+                    if (sw.IsRunning)
+                        sw.Stop();
+                    sw.Reset();
+                    // Start Stopwatch
+                    sw.Start();
+
                     var entryMethodSig = mod.EntryMethod.Split('.');
                     var entryType = String.Join(".", entryMethodSig.Take(entryMethodSig.Length - 1).ToArray());
                     var entryMethod = entryMethodSig[entryMethodSig.Length - 1];
 
                     MethodInfo qPatchMethod = mod.loadedAssembly.GetType(entryType).GetMethod(entryMethod);
                     qPatchMethod.Invoke(mod.loadedAssembly, new object[] { });
+
+                    // Stop Stopwatch
+                    sw.Stop();
+                    // Parse elapsed time
+                    string elapsedTime = "";
+                    if (sw.Elapsed.Hours == 0)
+                        if (sw.Elapsed.Minutes == 0)
+                            if (sw.Elapsed.Seconds == 0)
+                                if (sw.Elapsed.Milliseconds != 0)
+                                    elapsedTime = String.Format("{0:00}ms", sw.Elapsed.Milliseconds / 10);
+                            else
+                                elapsedTime = String.Format("{0:00}s{1:00}ms", sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
+                        else
+                            elapsedTime = String.Format("{0:00}m{1:00}s{2:00}ms", sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
+                    else
+                        elapsedTime = String.Format("{0:00}h{1:00}m{2:00}s{3:00}ms", sw.Elapsed.Hours, sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
+                    string _modname = (!String.IsNullOrEmpty(mod.Id) ? mod.Id : mod.AssemblyName);
+                    // Log elapsed time
+                    if (elapsedTime == "")
+                    {
+                        AddLog($"Mod \"{_modname}\" loaded IMMEDIATELY! This shouldn't even be possible ;)");
+                    }
+                    else
+                    {
+                        AddLog($"Mod \"{_modname}\" took {elapsedTime} to load.");
+                    }
                 }
                 catch (ArgumentNullException e)
                 {
