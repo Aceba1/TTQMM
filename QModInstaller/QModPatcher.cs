@@ -6,18 +6,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using UnityEngine.UI;
 
 namespace QModInstaller
 {
     public class QModPatcher
     {
-        private static string qModBaseDir = Environment.CurrentDirectory + @"\QMods";
-        private static List<QMod> loadedMods = new List<QMod>();
-        private static bool patched = false;
-        private static Stopwatch sw = null; // Used for performance review.
-
-        public static Version version = new Version(1, 3);
-
         public static void Patch()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
@@ -156,28 +150,50 @@ namespace QModInstaller
             AddLog(" ");
             AddLog("Installed mods:");
 
-            string elapsed = "";
+            FlagGame();
+
             foreach (var mod in mods)
             {
-                elapsedTimes.TryGetValue(mod, out elapsed);
-                AddLog($"- {mod.DisplayName} ({mod.Id})");
+                bool success = elapsedTimes.TryGetValue(mod, out string elapsed);
+                if (success)
+                    AddLog($"- {mod.DisplayName} ({mod.Id}) - {elapsed}");
+                else
+                    AddLog($"- {mod.DisplayName} ({mod.Id}) - Unkown load time");
+                // - Internal Flagging (qmm.internal.modflag)
             }
 
-            FlagGame();
             Console.WriteLine(ParseLog());
         }
 
-        public static void FlagGame()
+        internal static string qModBaseDir = Environment.CurrentDirectory + @"\QMods";
+
+        internal static List<QMod> loadedMods = new List<QMod>();
+
+        internal static bool patched = false;
+
+        internal static Stopwatch sw = null;
+
+        internal static Version version = new Version(1, 3);
+
+        internal static void FlagGame()
         {
+            if (sw.IsRunning)
+                sw.Stop();
+            sw.Reset();
+            sw.Start();
+
             string Id = "qmm.internal.modflag";
             string Name = "Internal Flagging";
             HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
-            AddLog("- " + Name + " (" + Id + ")");
+
+            sw.Stop();
+
+            AddLog($"- {Name} ({Id}) - {ParseTime(sw)}");
         }
 
-        private static Dictionary<QMod, string> elapsedTimes = new Dictionary<QMod, string>();
+        internal static Dictionary<QMod, string> elapsedTimes = new Dictionary<QMod, string>();
 
-        private static QMod LoadMod(QMod mod)
+        internal static QMod LoadMod(QMod mod)
         {
             if (mod == null) return null;
 
@@ -189,11 +205,9 @@ namespace QModInstaller
             {
                 try
                 {
-                    // Reset Stopwatch
                     if (sw.IsRunning)
                         sw.Stop();
                     sw.Reset();
-                    // Start Stopwatch
                     sw.Start();
 
                     var entryMethodSig = mod.EntryMethod.Split('.');
@@ -203,23 +217,10 @@ namespace QModInstaller
                     MethodInfo qPatchMethod = mod.loadedAssembly.GetType(entryType).GetMethod(entryMethod);
                     qPatchMethod.Invoke(mod.loadedAssembly, new object[] { });
 
-                    // Stop Stopwatch
                     sw.Stop();
-                    // Parse elapsed time
-                    string elapsedTime = "";
-                    if (sw.Elapsed.Hours == 0)
-                        if (sw.Elapsed.Minutes == 0)
-                            if (sw.Elapsed.Seconds == 0)
-                                if (sw.Elapsed.Milliseconds != 0)
-                                    elapsedTime = String.Format("{0:00}ms", sw.Elapsed.Milliseconds / 10);
-                            else
-                                elapsedTime = String.Format("{0:00}s{1:00}ms", sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
-                        else
-                            elapsedTime = String.Format("{0:00}m{1:00}s{2:00}ms", sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
-                    else
-                        elapsedTime = String.Format("{0:00}h{1:00}m{2:00}s{3:00}ms", sw.Elapsed.Hours, sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
-                    string _modname = (!String.IsNullOrEmpty(mod.Id) ? mod.Id : mod.AssemblyName);
-                    // Log elapsed time
+
+                    string elapsedTime = ParseTime(sw);
+
                     elapsedTimes.Add(mod, elapsedTime);
                 }
                 catch (ArgumentNullException e)
@@ -259,14 +260,33 @@ namespace QModInstaller
             return mod;
         }
 
-        private static List<string> rawLines = new List<string>();
+        internal static string ParseTime(Stopwatch sw)
+        {
+            string elapsedTime = "";
+            if (sw.Elapsed.Hours == 0)
+                if (sw.Elapsed.Minutes == 0)
+                    if (sw.Elapsed.Seconds == 0)
+                        if (sw.Elapsed.Milliseconds == 0)
+                            elapsedTime = String.Format("{0:00}ms", sw.Elapsed.Milliseconds / 10);
+                        else
+                            return "Loaded immediately";
+                    else
+                        elapsedTime = String.Format("{0:00}s{1:00}ms", sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
+                else
+                    elapsedTime = String.Format("{0:00}m{1:00}s{2:00}ms", sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
+            else
+                elapsedTime = String.Format("{0:00}h{1:00}m{2:00}s{3:00}ms", sw.Elapsed.Hours, sw.Elapsed.Minutes, sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
+            return "Loaded in " + elapsedTime;
+        }
 
-        private static void AddLog(string line)
+        internal static List<string> rawLines = new List<string>();
+
+        internal static void AddLog(string line)
         {
             rawLines.Add(line);
         }
 
-        private static string ParseLog()
+        internal static string ParseLog()
         {
             string output = "";
             int maxLength = 0;
@@ -309,7 +329,7 @@ namespace QModInstaller
             return output;
         }
 
-        public static string Blank(int maxLength)
+        internal static string Blank(int maxLength)
         {
             string output = "";
             output += "#  ";
@@ -319,28 +339,26 @@ namespace QModInstaller
             return output;
         }
     }
-    class Patches
+
+    internal class Patches
     {
+        internal static class MaxPriority
+        {
+            internal const int First = int.MaxValue;
+            internal const int Last = int.MinValue;
+        }
+
         [HarmonyPatch(typeof(UIScreenBugReport))]
         [HarmonyPatch("Post")]
-        class UIScreenBugReport_PostIt
+        internal static class UIScreenBugReport_Post
         {
-            static void Prefix(UIScreenBugReport __instance)
+            [HarmonyPrefix]
+            [HarmonyPriority(MaxPriority.Last)]
+            internal static void Prefix(UIScreenBugReport __instance)
             {
-                UnityEngine.Debug.Log("Bug report UI screen sending!");
-                var m_Body = Traverse.Create(__instance).Field("m_Body");
-                var Text = m_Body.Property("text");
-                var text = m_Body.Field("m_Text");
-                string value = text.GetValue<string>();
-                if (!value.ToLower().Contains("this game is modded"))
-                {
-                    value += "This game is modded\n\n";
-                    UnityEngine.Debug.Log("Couldn't find modded flag! Adding");
-                    Text.SetValue(value);
-                    text.SetValue(value);
-                    Text.SetValue(value);
-                    text.SetValue(value);
-                }
+                Text m_Body = __instance.GetInstanceField("m_Body") as Text;
+                m_Body.text = $"This game is modded! Using QModManager {QModPatcher.version} (Check the log for a list of mods)\n\n" + m_Body.text;
+                __instance.SetInstanceField("m_Body", m_Body);
             }
         }
     }
