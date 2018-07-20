@@ -16,7 +16,7 @@ namespace QModInstaller
         {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
             {
-                var allDlls = new DirectoryInfo(qModBaseDir).GetFiles("*.dll", SearchOption.AllDirectories);
+                var allDlls = new DirectoryInfo(QModBaseDir).GetFiles("*.dll", SearchOption.AllDirectories);
                 foreach (var dll in allDlls)
                 {
                     Console.WriteLine(Path.GetFileNameWithoutExtension(dll.Name) + " " + args.Name);
@@ -33,15 +33,18 @@ namespace QModInstaller
 
             patched = true;
 
-            AddLog($"This game is modded! (QModManager {version})");
-
-            if (!Directory.Exists(qModBaseDir))
+            if (!Directory.Exists(QModBaseDir))
             {
 
                 AddLog("QMods directory was not found! Creating...");
+                if (QModBaseDir == "ERR")
+                {
+                    AddLog("There was an error creating the QMods directory");
+                    AddLog("Please make sure that you ran TerraTech from Steam");
+                }
                 try
                 {
-                    Directory.CreateDirectory(qModBaseDir);
+                    Directory.CreateDirectory(QModBaseDir);
                     AddLog("QMods directory created successfully!");
                 }
                 catch (Exception e)
@@ -60,7 +63,7 @@ namespace QModInstaller
                 return;
             }
 
-            var subDirs = Directory.GetDirectories(qModBaseDir);
+            var subDirs = Directory.GetDirectories(QModBaseDir);
             var lastMods = new List<QMod>();
             var firstMods = new List<QMod>();
             var otherMods = new List<QMod>();
@@ -138,19 +141,18 @@ namespace QModInstaller
                     loadedMods.Add(LoadMod(mod));
             }
 
-            // Disable Stopwatch when all loading is done.
             if (sw.IsRunning)
                 sw.Stop();
-            sw = null;
+
             var mods = firstMods;
             mods.AddRange(otherMods);
             mods.AddRange(lastMods);
             mods.Sort();
 
+            FlagGame();
+
             AddLog(" ");
             AddLog("Installed mods:");
-
-            FlagGame();
 
             foreach (var mod in mods)
             {
@@ -165,7 +167,7 @@ namespace QModInstaller
             Console.WriteLine(ParseLog());
         }
 
-        internal static string qModBaseDir = Environment.CurrentDirectory + @"\QMods";
+        internal static string QModBaseDir = Directory.GetCurrentDirectory().Contains("system32") ? "ERR" : Directory.GetCurrentDirectory() + @"\QMods";
 
         internal static List<QMod> loadedMods = new List<QMod>();
 
@@ -182,12 +184,13 @@ namespace QModInstaller
             sw.Reset();
             sw.Start();
 
-            string Id = "qmm.internal.modflag";
+            string Id = "ttqmm.internal.modflag";
             string Name = "Internal Flagging";
             HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
 
             sw.Stop();
 
+            AddLog("Internal stuff:");
             AddLog($"- {Name} ({Id}) - {ParseTime(sw)}");
         }
 
@@ -267,9 +270,9 @@ namespace QModInstaller
                 if (sw.Elapsed.Minutes == 0)
                     if (sw.Elapsed.Seconds == 0)
                         if (sw.Elapsed.Milliseconds == 0)
-                            elapsedTime = String.Format("{0:00}ms", sw.Elapsed.Milliseconds / 10);
-                        else
                             return "Loaded immediately";
+                        else
+                            elapsedTime = String.Format("{0:00}ms", sw.Elapsed.Milliseconds / 10);
                     else
                         elapsedTime = String.Format("{0:00}s{1:00}ms", sw.Elapsed.Seconds, sw.Elapsed.Milliseconds / 10);
                 else
