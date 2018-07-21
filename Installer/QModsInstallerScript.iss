@@ -23,7 +23,7 @@ DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
 OutputBaseFilename=TerraTechQMMSetup
-SetupIconFile=QModsIcon.ico
+SetupIconFile=..\Assets\icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardImageFile=WizardImage.bmp
@@ -32,7 +32,7 @@ DisableWelcomePage=no
 DisableDirPage=no
 DirExistsWarning=no
 UsePreviousAppDir=yes
-UninstallDisplayIcon=QModsIcon.ico
+UninstallDisplayIcon=..\Assets\icon.ico
 UninstallDisplayName={#MyAppName}
 
 [Messages]

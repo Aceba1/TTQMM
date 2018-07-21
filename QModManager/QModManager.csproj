@@ -55,7 +55,10 @@
     <StartupObject>QModManager.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>TTQModsIcon.ico</ApplicationIcon>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
@@ -130,6 +133,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="TTQModsIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
