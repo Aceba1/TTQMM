@@ -13,7 +13,7 @@
 AppId={{53D64B81-BFF9-47E3-A599-66C18ED14B71}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppVerName={#MyAppName}
+AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
@@ -32,6 +32,8 @@ DisableWelcomePage=no
 DisableDirPage=no
 DirExistsWarning=no
 UsePreviousAppDir=yes
+UninstallDisplayIcon=QModsIcon.ico
+UninstallDisplayName={#MyAppName}
 
 [Messages]
 ExitSetupMessage=Setup is not complete. If you exit now, QModManager will not be installed.%nExit Setup?
