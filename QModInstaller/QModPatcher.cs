@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine.UI;
-using UnityEngine;
 
 namespace QModInstaller
 {
@@ -179,7 +178,7 @@ namespace QModInstaller
         internal static Version version = new Version(1, 3);
 
         internal static string GetModsLine()
-            => $"This game is modded! Using QModManager {version}, amount of mods loaded: {loadedMods.Count} (Check the output log for a complete list of installed mods and respective their load times)";
+            => $"This game is modded! Using QModManager {version}, with {loadedMods.Count} loaded mods. (Check the output log for a complete list of installed mods and respective their load times)";
 
         internal static void FlagGame()
         {
@@ -189,8 +188,23 @@ namespace QModInstaller
             sw.Start();
 
             string Id = "ttqmm.internal.modflag";
-            string Name = "Internal Flagging";
-            HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
+            string Name = "Game Flagging";
+
+            try
+            {
+                HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
+            }
+            catch (Exception e)
+            {
+                AddLog("EXCEPTION CAUGHT!");
+                AddLog(e.Message);
+                AddLog(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    AddLog(e.InnerException.Message);
+                    AddLog(e.InnerException.StackTrace);
+                }
+            }
 
             sw.Stop();
 
@@ -372,7 +386,6 @@ namespace QModInstaller
         [HarmonyPatch]
         internal static class UIScreenBugReport_PostIt
         {
-            [HarmonyTargetMethod]
             internal static MethodInfo TargetMethod()
                 => AccessTools.FirstInner(typeof(UIScreenBugReport), (type) => type.Name.Contains("<PostIt>")).GetMethod("MoveNext", AccessTools.all);
 
@@ -382,6 +395,8 @@ namespace QModInstaller
             {
                 var codes = new List<CodeInstruction>(instructions);
                 var codesToInsert = new List<CodeInstruction>();
+                //for (int i = 0; i < codes.Count; i++)
+                //    Console.WriteLine($"[IL-DEBUG] {i}: {codes[i].opcode} : {codes[i].operand}");
 
                 int platformStringIndex = -1;
                 int callIndex = -1;
@@ -418,8 +433,12 @@ namespace QModInstaller
                 }
                 else
                 {
-                    QModPatcher.AddLog($"Couldn't find it | DEBUG | platformStringIndex: {platformStringIndex} | callIndex: {callIndex} | ldargs0Index: {ldarg0Index}");
+                    QModPatcher.AddLog($"ERROR! Could not patch UIScreenBugReport.PostIt!");
+                    QModPatcher.AddLog($"platformStringIndex: {platformStringIndex}, callIndex: {callIndex}, ldargs0Index: {ldarg0Index}");
                 }
+
+                //for (int i = 0; i < codes.Count; i++)
+                //    Console.WriteLine($"[IL-DEBUG] {i}: {codes[i].opcode} : {codes[i].operand}");
 
                 return codes;
             }

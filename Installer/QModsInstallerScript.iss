@@ -3,7 +3,7 @@
 
 #define MyAppName "QModManager (TerraTech)"
 #define MyAppVersion "1.3"
-#define MyAppPublisher "AlexejheroYTB"
+#define MyAppPublisher "AlexejheroYTB, Aceba1 & weskey007"
 #define MyAppURL "https://github.com/AlexejheroYTB/TerraTech-QModManager"
 
 [Setup]
