@@ -6,7 +6,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine.UI;
+using UnityEngine;
 
 namespace QModInstaller
 {
@@ -35,7 +37,6 @@ namespace QModInstaller
 
             if (!Directory.Exists(QModBaseDir))
             {
-
                 AddLog("QMods directory was not found! Creating...");
                 if (QModBaseDir == "ERR")
                 {
@@ -176,6 +177,9 @@ namespace QModInstaller
         internal static Stopwatch sw = null;
 
         internal static Version version = new Version(1, 3);
+
+        internal static string GetModsLine()
+            => $"This game is modded! Using QModManager {version}, amount of mods loaded: {loadedMods.Count} (Check the output log for a complete list of installed mods and respective their load times)";
 
         internal static void FlagGame()
         {
@@ -360,8 +364,107 @@ namespace QModInstaller
             internal static void Prefix(UIScreenBugReport __instance)
             {
                 Text m_Body = __instance.GetInstanceField("m_Body") as Text;
-                m_Body.text = $"This game is modded! Using QModManager {QModPatcher.version} (Check the output log for a complete list of installed mods and their load time)\n\n" + m_Body.text;
+                m_Body.text = QModPatcher.GetModsLine() + "\n\n" + m_Body.text;
                 __instance.SetInstanceField("m_Body", m_Body);
+            }
+        }
+
+        [HarmonyPatch]
+        internal static class UIScreenBugReport_PostIt
+        {
+            [HarmonyTargetMethod]
+            internal static MethodInfo TargetMethod()
+                => AccessTools.FirstInner(typeof(UIScreenBugReport), (type) => type.Name.Contains("<PostIt>")).GetMethod("MoveNext", AccessTools.all);
+
+            [HarmonyTranspiler]
+            [HarmonyPriority(MaxPriority.Last)]
+            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+            {
+                var codes = new List<CodeInstruction>(instructions);
+                var codesToInsert = new List<CodeInstruction>();
+
+                int platformStringIndex = -1;
+                int callIndex = -1;
+                int ldarg0Index = -1;
+
+                // Find where the string "platform" is defined (since it's the last one in the AddField calls)
+                if (InstructionsHelper.TryFindInstruction(codes, 0, OpCodes.Ldstr, "platform", out platformStringIndex) &&
+                    // First found Callvirt will be AddField
+                    InstructionsHelper.TryFindInstruction(codes, platformStringIndex, OpCodes.Callvirt, null, out callIndex) &&
+                    // Find where this is put onto the IL Stack (since it calls this.{reference}.AddField())
+                    InstructionsHelper.TryFindInstructionBefore(codes, platformStringIndex, OpCodes.Ldarg_0, null, out ldarg0Index))
+                {
+                    // Loop from ldarg.0 till one before ldstr "platform"
+                    for (int i = ldarg0Index; i < platformStringIndex; i++)
+                    {
+                        //Console.WriteLine($"{i}: {codes[i].opcode} : {codes[i].operand}");
+                        codesToInsert.Add(new CodeInstruction(codes[i]));
+                    }
+
+                    // Add the string "mods"
+                    codesToInsert.Add(new CodeInstruction(codes[platformStringIndex])
+                    {
+                        operand = "mods"
+                    });
+
+                    // Add the call to GetModsLine
+                    var getModsLineMethod = AccessTools.Method(typeof(QModPatcher), nameof(QModPatcher.GetModsLine));
+                    codesToInsert.Add(new CodeInstruction(OpCodes.Call, getModsLineMethod));
+
+                    // Add the Callvirt
+                    codesToInsert.Add(new CodeInstruction(codes[callIndex]));
+
+                    codes.InsertRange(callIndex, codesToInsert);
+                }
+                else
+                {
+                    QModPatcher.AddLog($"Couldn't find it | DEBUG | platformStringIndex: {platformStringIndex} | callIndex: {callIndex} | ldargs0Index: {ldarg0Index}");
+                }
+
+                return codes;
+            }
+
+            internal static class InstructionsHelper
+            {
+                public static bool TryFindInstruction(List<CodeInstruction> codes, int startIndex, OpCode targetOpCode, object targetObject, out int targetFoundAt, int skipAmount = 0)
+                {
+                    for (int i = startIndex; i < codes.Count; i++)
+                    {
+                        if (codes[i].opcode == targetOpCode && (targetObject == null || (codes[i].operand != null && codes[i].operand.Equals(targetObject))))
+                        {
+                            if (skipAmount < 1)
+                            {
+                                targetFoundAt = i;
+                                return true;
+                            }
+                            else
+                                skipAmount--;
+                        }
+                    }
+
+                    targetFoundAt = -1;
+                    return false;
+                }
+
+                public static bool TryFindInstructionBefore(List<CodeInstruction> codes, int startIndex, OpCode targetOpCode, object targetObject, out int targetFoundAt, int skipAmount = 0)
+                {
+                    for (int i = startIndex; i >= 0; i--)
+                    {
+                        if (codes[i].opcode == targetOpCode && (targetObject == null || (codes[i].operand != null && codes[i].operand.Equals(targetObject))))
+                        {
+                            if (skipAmount < 1)
+                            {
+                                targetFoundAt = i;
+                                return true;
+                            }
+                            else
+                                skipAmount--;
+                        }
+                    }
+
+                    targetFoundAt = -1;
+                    return false;
+                }
             }
         }
     }
