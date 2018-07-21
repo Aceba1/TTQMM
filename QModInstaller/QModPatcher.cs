@@ -372,10 +372,13 @@ namespace QModInstaller
         [HarmonyPatch]
         internal static class UIScreenBugReport_PostIt
         {
-            public static MethodInfo TargetMethod()
+            [HarmonyTargetMethod]
+            internal static MethodInfo TargetMethod()
                 => AccessTools.FirstInner(typeof(UIScreenBugReport), (type) => type.Name.Contains("<PostIt>")).GetMethod("MoveNext", AccessTools.all);
 
-            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+            [HarmonyTranspiler]
+            [HarmonyPriority(MaxPriority.Last)]
+            internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
             {
                 var codes = new List<CodeInstruction>(instructions);
                 var codesToInsert = new List<CodeInstruction>();
@@ -420,48 +423,48 @@ namespace QModInstaller
 
                 return codes;
             }
-        }
 
-        internal static class InstructionsHelper
-        {
-            public static bool TryFindInstruction(List<CodeInstruction> codes, int startIndex, OpCode targetOpCode, object targetObject, out int targetFoundAt, int skipAmount = 0)
+            internal static class InstructionsHelper
             {
-                for (int i = startIndex; i < codes.Count; i++)
+                public static bool TryFindInstruction(List<CodeInstruction> codes, int startIndex, OpCode targetOpCode, object targetObject, out int targetFoundAt, int skipAmount = 0)
                 {
-                    if (codes[i].opcode == targetOpCode && (targetObject == null || (codes[i].operand != null && codes[i].operand.Equals(targetObject))))
+                    for (int i = startIndex; i < codes.Count; i++)
                     {
-                        if (skipAmount < 1)
+                        if (codes[i].opcode == targetOpCode && (targetObject == null || (codes[i].operand != null && codes[i].operand.Equals(targetObject))))
                         {
-                            targetFoundAt = i;
-                            return true;
+                            if (skipAmount < 1)
+                            {
+                                targetFoundAt = i;
+                                return true;
+                            }
+                            else
+                                skipAmount--;
                         }
-                        else
-                            skipAmount--;
                     }
+
+                    targetFoundAt = -1;
+                    return false;
                 }
 
-                targetFoundAt = -1;
-                return false;
-            }
-
-            public static bool TryFindInstructionBefore(List<CodeInstruction> codes, int startIndex, OpCode targetOpCode, object targetObject, out int targetFoundAt, int skipAmount = 0)
-            {
-                for (int i = startIndex; i >= 0; i--)
+                public static bool TryFindInstructionBefore(List<CodeInstruction> codes, int startIndex, OpCode targetOpCode, object targetObject, out int targetFoundAt, int skipAmount = 0)
                 {
-                    if (codes[i].opcode == targetOpCode && (targetObject == null || (codes[i].operand != null && codes[i].operand.Equals(targetObject))))
+                    for (int i = startIndex; i >= 0; i--)
                     {
-                        if (skipAmount < 1)
+                        if (codes[i].opcode == targetOpCode && (targetObject == null || (codes[i].operand != null && codes[i].operand.Equals(targetObject))))
                         {
-                            targetFoundAt = i;
-                            return true;
+                            if (skipAmount < 1)
+                            {
+                                targetFoundAt = i;
+                                return true;
+                            }
+                            else
+                                skipAmount--;
                         }
-                        else
-                            skipAmount--;
                     }
-                }
 
-                targetFoundAt = -1;
-                return false;
+                    targetFoundAt = -1;
+                    return false;
+                }
             }
         }
     }
