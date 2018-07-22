@@ -13,7 +13,99 @@ namespace QModInstaller
 {
     public class QModPatcher
     {
+        #region Patching
+
+        internal class QMod
+        {
+            public string Id = "Mod.ID";
+
+            public string DisplayName = "Display name";
+
+            public string Author = "Author name";
+
+            public string Version = "0.0.0";
+
+            //public string[] Requires = new string[] { };
+
+            public bool Enable = true;
+
+            public string AssemblyName = "DLL Filename";
+
+            public string EntryMethod = "Namespace.Class.Method";
+
+            public string Priority = "First or Last";
+
+            //public Dictionary<string, object> Config = new Dictionary<string, object>();
+
+            [JsonIgnore]
+            public Assembly LoadedAssembly;
+
+            [JsonIgnore]
+            public string ModAssemblyPath;
+
+            public string[] LoadThisModAfter = new string[] { };
+
+            public string[] LoadThisModBefore = new string[] { };
+
+            [JsonIgnore]
+            public string[] LoadAfterOtherMods = new string[] { }; // Might not be needed
+
+            [JsonIgnore]
+            public string[] LoadBeforeOtherMods = new string[] { }; // Might not be needed
+
+            //public QMod() { }
+
+            public static QMod FromJsonFile(string file)
+            {
+                try
+                {
+                    JsonSerializerSettings settings = new JsonSerializerSettings
+                    {
+                        MissingMemberHandling = MissingMemberHandling.Ignore
+                    };
+
+                    string json = File.ReadAllText(file);
+                    QMod mod = JsonConvert.DeserializeObject<QMod>(json);
+
+                    return mod;
+                }
+                catch (Exception e)
+                {
+                    AddLog("ERROR! mod.json deserialization failed!");
+                    AddLog(e.Message);
+                    AddLog(e.StackTrace);
+
+                    return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Public method which is called by the game to load the mods
+        /// </summary>
         public static void Patch()
+        {
+            try
+            {
+                LoadMods();
+            }
+            catch (Exception e)
+            {
+                AddLog("EXCEPTION CAUGHT!");
+                AddLog(e.Message);
+                AddLog(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    AddLog(e.InnerException.Message);
+                    AddLog(e.InnerException.StackTrace);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Loads the mods
+        /// </summary>
+        internal static void LoadMods()
         {
             AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
             {
@@ -99,8 +191,8 @@ namespace QModInstaller
                     continue;
                 }
 
-                mod.loadedAssembly = Assembly.LoadFrom(modAssemblyPath);
-                mod.modAssemblyPath = modAssemblyPath;
+                mod.LoadedAssembly = Assembly.LoadFrom(modAssemblyPath);
+                mod.ModAssemblyPath = modAssemblyPath;
 
                 if (mod.Priority.Equals("Last"))
                 {
@@ -119,9 +211,7 @@ namespace QModInstaller
                 }
             }
 
-            // Enable Stopwatch just before loading mods.
-            if (sw == null)
-                sw = new Stopwatch();
+            // LoadBefore and LoadAfter stuff
 
             foreach (var mod in firstMods)
             {
@@ -144,9 +234,7 @@ namespace QModInstaller
             if (sw.IsRunning)
                 sw.Stop();
 
-            var mods = firstMods;
-            mods.AddRange(otherMods);
-            mods.AddRange(lastMods);
+            List<QMod> mods = firstMods.Union(otherMods).Union(lastMods).ToList();
             mods.Sort();
 
             FlagGame();
@@ -167,53 +255,26 @@ namespace QModInstaller
             Console.WriteLine(ParseLog());
         }
 
-        internal static string QModBaseDir = Directory.GetCurrentDirectory().Contains("system32") ? "ERR" : Directory.GetCurrentDirectory() + @"\QMods";
+        /// <summary>
+        /// The path of the QMods folder. If game is not launched through
+        /// </summary>
+        internal static string QModBaseDir = Environment.CurrentDirectory.Contains("system32") && Environment.CurrentDirectory.Contains("Windows") ? "ERR" : Environment.CurrentDirectory + @"\QMods";
 
+        /// <summary>
+        /// A list of all of the loaded mods
+        /// </summary>
         internal static List<QMod> loadedMods = new List<QMod>();
 
+        /// <summary>
+        /// Whether the game is patched or not
+        /// </summary>
         internal static bool patched = false;
 
-        internal static Stopwatch sw = null;
-
-        internal static Version version = new Version(1, 3);
-
-        internal static string GetModsLine()
-            => $"This game is modded! Using QModManager {version}, with {loadedMods.Count} loaded mods. (Check the output log for a complete list of installed mods and respective their load times)";
-
-        internal static void FlagGame()
-        {
-            if (sw.IsRunning)
-                sw.Stop();
-            sw.Reset();
-            sw.Start();
-
-            string Id = "ttqmm.internal.modflag";
-            string Name = "Game Flagging";
-
-            try
-            {
-                HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
-            }
-            catch (Exception e)
-            {
-                AddLog("EXCEPTION CAUGHT!");
-                AddLog(e.Message);
-                AddLog(e.StackTrace);
-                if (e.InnerException != null)
-                {
-                    AddLog(e.InnerException.Message);
-                    AddLog(e.InnerException.StackTrace);
-                }
-            }
-
-            sw.Stop();
-
-            AddLog("Internal stuff:");
-            AddLog($"- {Name} ({Id}) - {ParseTime(sw)}");
-        }
-
-        internal static Dictionary<QMod, string> elapsedTimes = new Dictionary<QMod, string>();
-
+        /// <summary>
+        /// Uses reflection to load a mod
+        /// </summary>
+        /// <param name="mod">The mod to load</param>
+        /// <returns>The loaded mod</returns>
         internal static QMod LoadMod(QMod mod)
         {
             if (mod == null) return null;
@@ -235,8 +296,8 @@ namespace QModInstaller
                     var entryType = String.Join(".", entryMethodSig.Take(entryMethodSig.Length - 1).ToArray());
                     var entryMethod = entryMethodSig[entryMethodSig.Length - 1];
 
-                    MethodInfo qPatchMethod = mod.loadedAssembly.GetType(entryType).GetMethod(entryMethod);
-                    qPatchMethod.Invoke(mod.loadedAssembly, new object[] { });
+                    MethodInfo qPatchMethod = mod.LoadedAssembly.GetType(entryType).GetMethod(entryMethod);
+                    qPatchMethod.Invoke(mod.LoadedAssembly, new object[] { });
 
                     sw.Stop();
 
@@ -281,6 +342,32 @@ namespace QModInstaller
             return mod;
         }
 
+        #endregion
+
+        #region Timer
+
+        /// <summary>
+        /// A timer to display mod loading times
+        /// </summary>
+        internal static Stopwatch sw = new Stopwatch();
+
+        /// <summary>
+        /// Contains every mod and their loading times
+        /// </summary>
+        internal static Dictionary<QMod, string> elapsedTimes = new Dictionary<QMod, string>();
+
+        /// <summary>
+        /// Uses the default stopwatch to return a parsed time which can be used in the logs
+        /// </summary>
+        /// <returns>The parsed loading time of a mod</returns>
+        internal static string ParseTime()
+            => ParseTime(sw);
+
+        /// <summary>
+        /// Uses the provided stopwatch to return a parsed time which can be used in the logs
+        /// </summary>
+        /// <param name="sw">The stopwatch</param>
+        /// <returns>The parsed loading time of a mod</returns>
         internal static string ParseTime(Stopwatch sw)
         {
             string elapsedTime = "";
@@ -300,13 +387,79 @@ namespace QModInstaller
             return "Loaded in " + elapsedTime;
         }
 
+        #endregion
+
+        #region Flagging
+
+        /// <summary>
+        /// The current version of QModManager
+        /// </summary>
+        internal static Version version = new Version(1, 3, 1);
+
+        /// <summary>
+        /// Gets a line that is used in <see cref="Patches.UIScreenBugReport_Post"/> and <see cref="Patches.UIScreenBugReport_PostIt"/>
+        /// </summary>
+        /// <returns>The line that needs to be used</returns>
+        internal static string GetModsLine()
+            => $"This game is modded! Using QModManager {version}, with {loadedMods.Count} loaded mods. (Check the output log for a complete list of installed mods and respective their load times)";
+
+        /// <summary>
+        /// Flags the game as being modded by doing some patches from the <see cref="Patches"/> class
+        /// </summary>
+        internal static void FlagGame()
+        {
+            if (sw.IsRunning)
+                sw.Stop();
+            sw.Reset();
+            sw.Start();
+
+            string Id = "ttqmm.internal.modflag";
+            string Name = "Game Flagging";
+
+            try
+            {
+                HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
+            }
+            catch (Exception e)
+            {
+                AddLog("EXCEPTION CAUGHT!");
+                AddLog(e.Message);
+                AddLog(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    AddLog(e.InnerException.Message);
+                    AddLog(e.InnerException.StackTrace);
+                }
+            }
+
+            sw.Stop();
+
+            AddLog("Internal stuff:");
+            AddLog($"- {Name} ({Id}) - {ParseTime(sw)}");
+        }
+
+        #endregion
+
+        #region Logging
+
+        /// <summary>
+        /// A list of lines which need to be outputted
+        /// </summary>
         internal static List<string> rawLines = new List<string>();
 
+        /// <summary>
+        /// Adds a line to the <see cref="rawLines"/> list
+        /// </summary>
+        /// <param name="line">The line to add</param>
         internal static void AddLog(string line)
         {
             rawLines.Add(line);
         }
 
+        /// <summary>
+        /// Parses the lines in the <see cref="rawLines"/> and returns an output
+        /// </summary>
+        /// <returns>A parsed string, ready to be outputted to the console</returns>
         internal static string ParseLog()
         {
             string output = "";
@@ -350,6 +503,11 @@ namespace QModInstaller
             return output;
         }
 
+        /// <summary>
+        /// Generates a blank line for <see cref="ParseLog"/> based on a maximum lengh
+        /// </summary>
+        /// <param name="maxLength">The maxmimum length of the line</param>
+        /// <returns>A blank line</returns>
         internal static string Blank(int maxLength)
         {
             string output = "";
@@ -359,6 +517,8 @@ namespace QModInstaller
             output += " #\n";
             return output;
         }
+
+        #endregion
     }
 
     internal class Patches
