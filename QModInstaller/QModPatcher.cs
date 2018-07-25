@@ -297,7 +297,19 @@ namespace QModInstaller
                     var entryMethod = entryMethodSig[entryMethodSig.Length - 1];
 
                     MethodInfo qPatchMethod = mod.LoadedAssembly.GetType(entryType).GetMethod(entryMethod);
-                    qPatchMethod.Invoke(mod.LoadedAssembly, new object[] { });
+
+                    ParameterInfo[] methodParameters = qPatchMethod.GetParameters();
+                    List<object> parameters = new List<object>();
+                    foreach (ParameterInfo methodParameter in methodParameters)
+                    {
+                        if (methodParameter.ParameterType == typeof(QMod))
+                        {
+                            parameters.Add(mod);
+                            continue;
+                        }
+                        parameters.Add(null);
+                    }
+                    qPatchMethod.Invoke(mod.LoadedAssembly, parameters.ToArray());
 
                     sw.Stop();
 
