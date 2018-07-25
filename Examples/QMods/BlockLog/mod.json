@@ -5,5 +5,5 @@
   "Version": "0.0.1",
   "Enable": true,
   "AssemblyName": "Examples.dll",
-  "EntryMethod": "ClassLibrary2.QPatch.Main",
+  "EntryMethod": "ClassLibrary2.QPatch.Main"
 }
