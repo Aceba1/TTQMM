@@ -35,7 +35,7 @@ namespace QModInstaller
 
             public string Priority = "First or Last";
 
-            //public Dictionary<string, object> Config = new Dictionary<string, object>();
+            public Dictionary<string, object> Config = new Dictionary<string, object>();
 
             [JsonIgnore]
             public Assembly LoadedAssembly;
@@ -53,8 +53,67 @@ namespace QModInstaller
             [JsonIgnore]
             public string[] LoadBeforeOtherMods = new string[] { }; // Might not be needed
 
-            //public QMod() { }
+            [JsonIgnore]
+            public string ModJsonPath;
 
+            //public QMod() { }
+            
+            /// <summary>
+            /// Get a value of a specified name from the Config variable
+            /// </summary>
+            /// <typeparam name="T">The type of object being acquired</typeparam>
+            /// <param name="ConfigID">The name of the object to try to get</param>
+            /// <param name="value">Returns the object as type if it exists</param>
+            /// <returns>Returns true if the object exists</returns>
+            public bool TryGetConfig<T>(string ConfigID, ref T value)
+            {
+                object cache = null;
+                bool result = this.Config.TryGetValue(ConfigID, out cache);
+                if (result)
+                {
+                    value = (T)cache;
+                }
+                return result;
+            }
+            /// <summary>
+            /// Get a float value of a specified name from the Config variable
+            /// </summary>
+            /// <param name="ConfigID">The name of the float value to try to get</param>
+            /// <param name="value">Returns the float value if it exists</param>
+            /// <returns>Returns true if the object exists</returns>
+            public bool TryGetConfigF(string ConfigID, ref float value)
+            {
+                object cache = null;
+                bool result = this.Config.TryGetValue(ConfigID, out cache);
+                if (result)
+                {
+                    value = (float)(double)cache;
+                }
+                return result;
+            }
+
+            public bool WriteToJsonFile(bool ThrowException = false)
+            {
+                try
+                {
+                    JsonSerializerSettings settings = new JsonSerializerSettings
+                    {
+                        MissingMemberHandling = MissingMemberHandling.Ignore
+                    };
+
+                    string json = JsonConvert.SerializeObject(this, settings);
+                    File.WriteAllText(ModJsonPath, json);
+
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    if (ThrowException)
+                        throw e;
+                    return false;
+                }
+            }
+            
             public static QMod FromJsonFile(string file)
             {
                 try
@@ -65,7 +124,8 @@ namespace QModInstaller
                     };
 
                     string json = File.ReadAllText(file);
-                    QMod mod = JsonConvert.DeserializeObject<QMod>(json);
+                    QMod mod = JsonConvert.DeserializeObject<QMod>(json, settings);
+                    mod.ModJsonPath = file;
 
                     return mod;
                 }
