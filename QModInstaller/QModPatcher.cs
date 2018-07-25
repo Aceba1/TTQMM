@@ -14,132 +14,7 @@ namespace QModInstaller
     public class QModPatcher
     {
         #region Patching
-
-        public class QMod
-        {
-            public string Id = "Mod.ID";
-
-            public string DisplayName = "Display name";
-
-            public string Author = "Author name";
-
-            public string Version = "0.0.0";
-
-            //public string[] Requires = new string[] { };
-
-            public bool Enable = true;
-
-            public string AssemblyName = "DLL Filename";
-
-            public string EntryMethod = "Namespace.Class.Method";
-
-            public string Priority = "First or Last";
-
-            public Dictionary<string, object> Config = new Dictionary<string, object>();
-
-            [JsonIgnore]
-            public Assembly LoadedAssembly;
-
-            [JsonIgnore]
-            public string ModAssemblyPath;
-
-            public string[] LoadThisModAfter = new string[] { };
-
-            public string[] LoadThisModBefore = new string[] { };
-
-            [JsonIgnore]
-            public string[] LoadAfterOtherMods = new string[] { }; // Might not be needed
-
-            [JsonIgnore]
-            public string[] LoadBeforeOtherMods = new string[] { }; // Might not be needed
-
-            [JsonIgnore]
-            public string ModJsonPath;
-
-            //public QMod() { }
-            
-            /// <summary>
-            /// Get a value of a specified name from the Config variable
-            /// </summary>
-            /// <typeparam name="T">The type of object being acquired</typeparam>
-            /// <param name="ConfigID">The name of the object to try to get</param>
-            /// <param name="value">Returns the object as type if it exists</param>
-            /// <returns>Returns true if the object exists</returns>
-            public bool TryGetConfig<T>(string ConfigID, ref T value)
-            {
-                object cache = null;
-                bool result = this.Config.TryGetValue(ConfigID, out cache);
-                if (result)
-                {
-                    value = (T)cache;
-                }
-                return result;
-            }
-            /// <summary>
-            /// Get a float value of a specified name from the Config variable
-            /// </summary>
-            /// <param name="ConfigID">The name of the float value to try to get</param>
-            /// <param name="value">Returns the float value if it exists</param>
-            /// <returns>Returns true if the object exists</returns>
-            public bool TryGetConfigF(string ConfigID, ref float value)
-            {
-                object cache = null;
-                bool result = this.Config.TryGetValue(ConfigID, out cache);
-                if (result)
-                {
-                    value = Convert.ToInt64(cache);
-                }
-                return result;
-            }
-
-            public bool WriteToJsonFile(bool ThrowException = false)
-            {
-                try
-                {
-                    JsonSerializerSettings settings = new JsonSerializerSettings
-                    {
-                        MissingMemberHandling = MissingMemberHandling.Ignore
-                    };
-
-                    string json = JsonConvert.SerializeObject(this, settings);
-                    File.WriteAllText(ModJsonPath, json);
-
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    if (ThrowException)
-                        throw e;
-                    return false;
-                }
-            }
-            
-            public static QMod FromJsonFile(string file)
-            {
-                try
-                {
-                    JsonSerializerSettings settings = new JsonSerializerSettings
-                    {
-                        MissingMemberHandling = MissingMemberHandling.Ignore
-                    };
-
-                    string json = File.ReadAllText(file);
-                    QMod mod = JsonConvert.DeserializeObject<QMod>(json, settings);
-                    mod.ModJsonPath = file;
-
-                    return mod;
-                }
-                catch (Exception e)
-                {
-                    AddLog("ERROR! mod.json deserialization failed!");
-                    AddLog(e.Message);
-                    AddLog(e.StackTrace);
-
-                    return null;
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Public method which is called by the game to load the mods
         /// </summary>
@@ -523,7 +398,7 @@ namespace QModInstaller
         /// Adds a line to the <see cref="rawLines"/> list
         /// </summary>
         /// <param name="line">The line to add</param>
-        internal static void AddLog(string line)
+        public static void AddLog(string line)
         {
             rawLines.Add(line);
         }
@@ -717,6 +592,112 @@ namespace QModInstaller
                     return false;
                 }
             }
+        }
+    }
+}
+
+public class QMod
+{
+    public string Id = "Mod.ID";
+
+    public string DisplayName = "Display name";
+
+    public string Author = "Author name";
+
+    public string Version = "0.0.0";
+
+    //public string[] Requires = new string[] { };
+
+    public bool Enable = true;
+
+    public string AssemblyName = "DLL Filename";
+
+    public string EntryMethod = "Namespace.Class.Method";
+
+    public string Priority = "First or Last";
+
+    public Dictionary<string, object> Config = new Dictionary<string, object>();
+
+    [JsonIgnore]
+    public Assembly LoadedAssembly;
+
+    [JsonIgnore]
+    public string ModAssemblyPath;
+
+    public string[] LoadThisModAfter = new string[] { };
+
+    public string[] LoadThisModBefore = new string[] { };
+
+    [JsonIgnore]
+    public string[] LoadAfterOtherMods = new string[] { }; // Might not be needed
+
+    [JsonIgnore]
+    public string[] LoadBeforeOtherMods = new string[] { }; // Might not be needed
+
+    [JsonIgnore]
+    public string ModJsonPath;
+
+
+    //public QMod() { }
+
+    /// <summary>
+    /// Get a value of a specified name from the Config
+    /// </summary>
+    /// <typeparam name="T">The type of object being acquired</typeparam>
+    /// <param name="ConfigID">The name of the object to try to get</param>
+    /// <param name="value">Returns the object as type if it exists</param>
+    /// <returns>Returns true if the object exists</returns>
+    public bool TryGetConfig<T>(string ConfigID, ref T value)
+    {
+        object cache = null;
+
+        bool result = this.Config.TryGetValue(ConfigID, out cache);
+        if (result)
+        {
+            value = (T)cache;
+        }
+        return result;
+    }
+    /// <summary>
+    /// Get a float value of a specified name from the Config
+    /// </summary>
+    /// <param name="ConfigID">The name of the float value to try to get</param>
+    /// <param name="value">Returns the float value if it exists</param>
+    /// <returns>Returns true if the object exists</returns>
+    public bool TryGetConfigF(string ConfigID, ref float value)
+    {
+        object cache = null;
+        bool result = this.Config.TryGetValue(ConfigID, out cache);
+        if (result)
+        {
+            value = Convert.ToInt64(cache);
+        }
+        return result;
+    }
+
+    public static QMod FromJsonFile(string file)
+    {
+        try
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string json = File.ReadAllText(file);
+            QMod mod = JsonConvert.DeserializeObject<QMod>(json, settings);
+
+            mod.ModJsonPath = file;
+
+            return mod;
+        }
+        catch (Exception e)
+        {
+            QModInstaller.QModPatcher.AddLog("ERROR! mod.json deserialization failed!");
+            QModInstaller.QModPatcher.AddLog(e.Message);
+            QModInstaller.QModPatcher.AddLog(e.StackTrace);
+
+            return null;
         }
     }
 }
