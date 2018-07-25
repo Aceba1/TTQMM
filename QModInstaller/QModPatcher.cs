@@ -678,7 +678,7 @@ public class QMod
         return result;
     }
 
-    public bool WriteToJsonFile(bool WriteToConfig = true, bool ThrowException = false)
+    public bool WriteConfigJsonFile(bool ThrowException = false)
     {
         try
         {
@@ -686,16 +686,9 @@ public class QMod
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
-            if (WriteToConfig)
-            {
-                string json = JsonConvert.SerializeObject(Config, settings);
-                File.WriteAllText(ConfigJsonPath, json);
-            }
-            else
-            {
-                string json = JsonConvert.SerializeObject(this, settings);
-                File.WriteAllText(ModJsonPath, json);
-            }
+
+            string json = JsonConvert.SerializeObject(Config, settings);
+            File.WriteAllText(ConfigJsonPath, json);
 
             return true;
         }
