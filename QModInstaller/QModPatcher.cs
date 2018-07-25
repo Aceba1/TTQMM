@@ -15,7 +15,7 @@ namespace QModInstaller
     {
         #region Patching
 
-        internal class QMod
+        public class QMod
         {
             public string Id = "Mod.ID";
 
@@ -263,7 +263,7 @@ namespace QModInstaller
         /// <summary>
         /// A list of all of the loaded mods
         /// </summary>
-        internal static List<QMod> loadedMods = new List<QMod>();
+        public static List<QMod> loadedMods = new List<QMod>();
 
         /// <summary>
         /// Whether the game is patched or not
