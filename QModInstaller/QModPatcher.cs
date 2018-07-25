@@ -616,6 +616,7 @@ public class QMod
 
     public string Priority = "First or Last";
 
+    [JsonIgnore]
     public Dictionary<string, object> Config = new Dictionary<string, object>();
 
     [JsonIgnore]
@@ -637,6 +638,8 @@ public class QMod
     [JsonIgnore]
     public string ModJsonPath;
 
+    [JsonIgnore]
+    public string ConfigJsonPath;
 
     //public QMod() { }
 
@@ -675,6 +678,35 @@ public class QMod
         return result;
     }
 
+    public bool WriteToJsonFile(bool WriteToConfig = true, bool ThrowException = false)
+    {
+        try
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            if (WriteToConfig)
+            {
+                string json = JsonConvert.SerializeObject(Config, settings);
+                File.WriteAllText(ConfigJsonPath, json);
+            }
+            else
+            {
+                string json = JsonConvert.SerializeObject(this, settings);
+                File.WriteAllText(ModJsonPath, json);
+            }
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            if (ThrowException)
+                throw e;
+            return false;
+        }
+    }
+
     public static QMod FromJsonFile(string file)
     {
         try
@@ -688,6 +720,24 @@ public class QMod
             QMod mod = JsonConvert.DeserializeObject<QMod>(json, settings);
 
             mod.ModJsonPath = file;
+            string file2 = Path.Combine(file, "..\\config.json");
+
+            mod.ConfigJsonPath = file2;
+
+            if (File.Exists(file2))
+            {
+                try
+                {
+                    json = File.ReadAllText(file2);
+                    mod.Config = JsonConvert.DeserializeObject<Dictionary<string, object>>(json, settings);
+                }
+                catch (Exception e)
+                {
+                    QModInstaller.QModPatcher.AddLog("ERROR! config.json deserialization failed.");
+                    QModInstaller.QModPatcher.AddLog(e.Message);
+                    QModInstaller.QModPatcher.AddLog(e.StackTrace);
+                }
+            }
 
             return mod;
         }
@@ -698,6 +748,27 @@ public class QMod
             QModInstaller.QModPatcher.AddLog(e.StackTrace);
 
             return null;
+        }
+    }
+    public bool ReadConfigJsonFile(bool ThrowException = false)
+    {
+        try
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string json = File.ReadAllText(ModJsonPath);
+            Config = JsonConvert.DeserializeObject<Dictionary<string,object>>(ConfigJsonPath, settings);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            if (ThrowException)
+                throw e;
+            return false;
         }
     }
 }
