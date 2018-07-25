@@ -87,7 +87,7 @@ namespace QModInstaller
                 bool result = this.Config.TryGetValue(ConfigID, out cache);
                 if (result)
                 {
-                    value = (float)(double)cache;
+                    value = Convert.ToInt64(cache);
                 }
                 return result;
             }
