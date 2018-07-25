@@ -620,6 +620,9 @@ public class QMod
     public Dictionary<string, object> Config = new Dictionary<string, object>();
 
     [JsonIgnore]
+    public List<object[]> FieldRefList = new List<object[]>();
+
+    [JsonIgnore]
     public Assembly LoadedAssembly;
 
     [JsonIgnore]
@@ -642,6 +645,48 @@ public class QMod
     public string ConfigJsonPath;
 
     //public QMod() { }
+
+    /// <summary>
+    /// Bind or unbind a field to the Config for loading and saving
+    /// </summary>
+    /// <param name="instance">The class instance to use, null if static</param>
+    /// <param name="field">The variable to use, acquire with 'typeof(Class).GetField("variableName")'</param>
+    /// <param name="Enable">Add or remove the bind for use</param>
+    /// <param name="UpdateRef">Set the value of the variable to what's in the Config, if it exists</param>
+    public void BindToConfig(object instance, FieldInfo field, bool Enable, bool UpdateRef = true)
+    {
+        if (Enable)
+        {
+            FieldRefList.Add(new object[] { instance, field });
+            if (UpdateRef)
+                ConfigToFieldRef(instance, field);
+        }
+        else
+        {
+            FieldRefList.Remove(new object[] { instance, field });
+        }
+    }
+
+
+    private void ConfigToFieldRef(object instance, FieldInfo field)
+    {
+        if (field.FieldType == typeof(float))
+        {
+            float cache = 0f;
+            if (TryGetConfigF(field.Name, ref cache))
+            {
+                field.SetValue(instance, cache);
+            }
+        }
+        else
+        {
+            object cache = null;
+            if (TryGetConfig(field.Name, ref cache))
+            {
+                field.SetValue(instance, cache);
+            }
+        }
+    }
 
     /// <summary>
     /// Get a value of a specified name from the Config
@@ -677,11 +722,24 @@ public class QMod
         }
         return result;
     }
-
-    public bool WriteConfigJsonFile(bool ThrowException = false)
+    /// <summary>
+    /// Write Config changes to the Config file
+    /// </summary>
+    /// <param name="UpdateFromRefList">Apply binded fields to the Config and file</param>
+    /// <returns>Returns true if successful</returns>
+    public bool WriteConfigJsonFile(bool UpdateFromRefList = true)
     {
         try
         {
+            if (UpdateFromRefList)
+            {
+                foreach (object[] field in FieldRefList)
+                {
+                    FieldInfo finfo = (FieldInfo)field[1];
+                    Config.Remove(finfo.Name);
+                    Config.Add(finfo.Name, finfo.GetValue(field[0]));
+                }
+            }
             JsonSerializerSettings settings = new JsonSerializerSettings
             {
                 MissingMemberHandling = MissingMemberHandling.Ignore
@@ -694,8 +752,7 @@ public class QMod
         }
         catch (Exception e)
         {
-            if (ThrowException)
-                throw e;
+            UnityEngine.Debug.Log("ERROR! config.json deserialization failed.\n" + e.Message + "\n" + e.StackTrace);
             return false;
         }
     }
@@ -743,7 +800,12 @@ public class QMod
             return null;
         }
     }
-    public bool ReadConfigJsonFile(bool ThrowException = false)
+    /// <summary>
+    /// Reload the Config file
+    /// </summary>
+    /// <param name="ApplyToRefList">Apply changes loaded from the Config file to binded fields</param>
+    /// <returns>Returns true if successful</returns>
+    public bool ReadConfigJsonFile(bool ApplyToRefList = true)
     {
         try
         {
@@ -754,13 +816,18 @@ public class QMod
 
             string json = File.ReadAllText(ModJsonPath);
             Config = JsonConvert.DeserializeObject<Dictionary<string,object>>(ConfigJsonPath, settings);
-
+            if (ApplyToRefList)
+            {
+                foreach (object[] field in FieldRefList)
+                {
+                    ConfigToFieldRef(field[0], (FieldInfo)field[1]);
+                }
+            }
             return true;
         }
         catch (Exception e)
         {
-            if (ThrowException)
-                throw e;
+            UnityEngine.Debug.Log("ERROR! config.json deserialization failed.\n" + e.Message + "\n" + e.StackTrace);
             return false;
         }
     }
