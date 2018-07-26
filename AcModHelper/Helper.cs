@@ -29,10 +29,25 @@ namespace ModHelper
         }
 
         /// <summary>
+        /// Get the FieldInfo of a class's variable
+        /// </summary>
+        /// <typeparam name="T">The class to get the variable from</typeparam>
+        /// <param name="VariableName">The name of the variable</param>
+        /// <returns>FieldInfo representing the class's variable</returns>
+        public static FieldInfo GetFieldInfo<T>(string VariableName) => typeof(T).GetField(VariableName);
+        /// <summary>
+        /// Get the FieldInfo of a class's variable
+        /// </summary>
+        /// <param name="T">The class to get the variable from</param>
+        /// <param name="VariableName">The name of the variable</param>
+        /// <returns>FieldInfo representing the class's variable</returns>
+        public static FieldInfo GetFieldInfo(Type T, string VariableName) => T.GetField(VariableName);
+
+        /// <summary>
         /// Bind a field to the Config for loading and saving
         /// </summary>
         /// <param name="instance">The class instance to use, null if static</param>
-        /// <param name="field">The variable to use, acquire with 'typeof(Class).GetField("variableName")'</param>
+        /// <param name="field">The variable to use, acquire with 'typeof(Class).GetField("variableName")', or GetFieldInfo</param>
         /// <param name="UpdateRef">Set the value of the variable to what's in the Config, if it exists</param>
         public void BindConfig(object instance, FieldInfo field, bool UpdateRef = true)
         {
@@ -48,6 +63,17 @@ namespace ModHelper
             FieldRefList.Add(field.Name + ats, new object[] { field, instance });
             if (UpdateRef)
                 ConfigToFieldRef(instance, field, field.Name + ats);
+        }
+        /// /// <summary>
+        /// Bind a field to the Config for loading and saving
+        /// </summary>
+        /// /// <typeparam name="T">The class type</typeparam>
+        /// <param name="instance">The class instance to use, null if static</param>
+        /// <param name="VariableName">The name of the variable</param>
+        /// <param name="UpdateRef">Set the value of the variable to what's in the Config, if it exists</param>
+        public void BindConfig<T>(T instance, string VariableName, bool UpdateRef = true)
+        {
+            BindConfig(instance, GetFieldInfo<T>(VariableName), UpdateRef);
         }
 
         private void ConfigToFieldRef(object instance, FieldInfo field, string Search)

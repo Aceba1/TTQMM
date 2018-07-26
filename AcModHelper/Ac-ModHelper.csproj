@@ -20,6 +20,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\AcModHelper.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -56,6 +57,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)AcModHelper.dll" "$(SolutionDir)Installer\AcModHelper.dll"</PostBuildEvent>
+    <PostBuildEvent>copy /y "$(TargetDir)AcModHelper.dll" "$(SolutionDir)Installer\AcModHelper.dll"
+copy /y "$(TargetDir)AcModHelper.xml" "$(SolutionDir)Installer\AcModHelper.xml"</PostBuildEvent>
   </PropertyGroup>
 </Project>
