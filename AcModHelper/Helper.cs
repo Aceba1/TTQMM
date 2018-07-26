@@ -17,23 +17,19 @@ namespace ModHelper
         private Dictionary<string, int> FieldRefRepeatCount = new Dictionary<string, int>();
 
         public string ConfigLocation;
-        
+
         /// <summary>
         /// Load the Config to a new instance from the caller's directory
         /// </summary>
-        /// <returns>New Config data</returns>
-        public static ModConfig Instantiate()
+        public ModConfig()
         {
             string path = Path.Combine(Assembly.GetCallingAssembly().Location, "..\\config.json");
-
-            var result = new ModConfig() { ConfigLocation = path };
-            result.ReadConfigJsonFile(false);
-
-            return result;
+            ConfigLocation = path;
+            ReadConfigJsonFile(false);
         }
 
         /// <summary>
-        /// Bind or unbind a field to the Config for loading and saving
+        /// Bind a field to the Config for loading and saving
         /// </summary>
         /// <param name="instance">The class instance to use, null if static</param>
         /// <param name="field">The variable to use, acquire with 'typeof(Class).GetField("variableName")'</param>
@@ -138,6 +134,18 @@ namespace ModHelper
                 return false;
             }
         }
+
+        /// <summary>
+        /// Reload all the Config values and push them to the references
+        /// </summary>
+        public void ReapplyConfigToRef()
+        {
+            foreach (var field in FieldRefList)
+            {
+                ConfigToFieldRef(field.Value[1], (FieldInfo)field.Value[0], field.Key);
+            }
+        }
+
         /// <summary>
         /// Reload the Config file
         /// </summary>
@@ -156,10 +164,7 @@ namespace ModHelper
                 Config = JsonConvert.DeserializeObject<Dictionary<string, object>>(json, settings);
                 if (ApplyToRefList)
                 {
-                    foreach (var field in FieldRefList)
-                    {
-                        ConfigToFieldRef(field.Value[1], (FieldInfo)field.Value[0], field.Key);
-                    }
+                    ReapplyConfigToRef();
                 }
                 return true;
             }
