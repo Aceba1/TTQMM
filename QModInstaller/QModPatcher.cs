@@ -14,72 +14,7 @@ namespace QModInstaller
     public class QModPatcher
     {
         #region Patching
-
-        internal class QMod
-        {
-            public string Id = "Mod.ID";
-
-            public string DisplayName = "Display name";
-
-            public string Author = "Author name";
-
-            public string Version = "0.0.0";
-
-            //public string[] Requires = new string[] { };
-
-            public bool Enable = true;
-
-            public string AssemblyName = "DLL Filename";
-
-            public string EntryMethod = "Namespace.Class.Method";
-
-            public string Priority = "First or Last";
-
-            //public Dictionary<string, object> Config = new Dictionary<string, object>();
-
-            [JsonIgnore]
-            public Assembly LoadedAssembly;
-
-            [JsonIgnore]
-            public string ModAssemblyPath;
-
-            public string[] LoadThisModAfter = new string[] { };
-
-            public string[] LoadThisModBefore = new string[] { };
-
-            [JsonIgnore]
-            public string[] LoadAfterOtherMods = new string[] { }; // Might not be needed
-
-            [JsonIgnore]
-            public string[] LoadBeforeOtherMods = new string[] { }; // Might not be needed
-
-            //public QMod() { }
-
-            public static QMod FromJsonFile(string file)
-            {
-                try
-                {
-                    JsonSerializerSettings settings = new JsonSerializerSettings
-                    {
-                        MissingMemberHandling = MissingMemberHandling.Ignore
-                    };
-
-                    string json = File.ReadAllText(file);
-                    QMod mod = JsonConvert.DeserializeObject<QMod>(json);
-
-                    return mod;
-                }
-                catch (Exception e)
-                {
-                    AddLog("ERROR! mod.json deserialization failed!");
-                    AddLog(e.Message);
-                    AddLog(e.StackTrace);
-
-                    return null;
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Public method which is called by the game to load the mods
         /// </summary>
@@ -263,7 +198,7 @@ namespace QModInstaller
         /// <summary>
         /// A list of all of the loaded mods
         /// </summary>
-        internal static List<QMod> loadedMods = new List<QMod>();
+        public static List<QMod> loadedMods = new List<QMod>();
 
         /// <summary>
         /// Whether the game is patched or not
@@ -297,7 +232,19 @@ namespace QModInstaller
                     var entryMethod = entryMethodSig[entryMethodSig.Length - 1];
 
                     MethodInfo qPatchMethod = mod.LoadedAssembly.GetType(entryType).GetMethod(entryMethod);
-                    qPatchMethod.Invoke(mod.LoadedAssembly, new object[] { });
+
+                    ParameterInfo[] methodParameters = qPatchMethod.GetParameters();
+                    List<object> parameters = new List<object>();
+                    foreach (ParameterInfo methodParameter in methodParameters)
+                    {
+                        if (methodParameter.ParameterType == typeof(QMod))
+                        {
+                            parameters.Add(mod);
+                            continue;
+                        }
+                        parameters.Add(null);
+                    }
+                    qPatchMethod.Invoke(mod.LoadedAssembly, parameters.ToArray());
 
                     sw.Stop();
 
@@ -451,7 +398,7 @@ namespace QModInstaller
         /// Adds a line to the <see cref="rawLines"/> list
         /// </summary>
         /// <param name="line">The line to add</param>
-        internal static void AddLog(string line)
+        public static void AddLog(string line)
         {
             rawLines.Add(line);
         }
@@ -645,6 +592,243 @@ namespace QModInstaller
                     return false;
                 }
             }
+        }
+    }
+}
+
+public class QMod
+{
+    public string Id = "Mod.ID";
+
+    public string DisplayName = "Display name";
+
+    public string Author = "Author name";
+
+    public string Version = "0.0.0";
+
+    //public string[] Requires = new string[] { };
+
+    public bool Enable = true;
+
+    public string AssemblyName = "DLL Filename";
+
+    public string EntryMethod = "Namespace.Class.Method";
+
+    public string Priority = "First or Last";
+
+    [JsonIgnore]
+    public Dictionary<string, object> Config = new Dictionary<string, object>();
+
+    [JsonIgnore]
+    public List<object[]> FieldRefList = new List<object[]>();
+
+    [JsonIgnore]
+    public Assembly LoadedAssembly;
+
+    [JsonIgnore]
+    public string ModAssemblyPath;
+
+    public string[] LoadThisModAfter = new string[] { };
+
+    public string[] LoadThisModBefore = new string[] { };
+
+    [JsonIgnore]
+    public string[] LoadAfterOtherMods = new string[] { }; // Might not be needed
+
+    [JsonIgnore]
+    public string[] LoadBeforeOtherMods = new string[] { }; // Might not be needed
+
+    [JsonIgnore]
+    public string ModJsonPath;
+
+    [JsonIgnore]
+    public string ConfigJsonPath;
+
+    //public QMod() { }
+
+    /// <summary>
+    /// Bind or unbind a field to the Config for loading and saving
+    /// </summary>
+    /// <param name="instance">The class instance to use, null if static</param>
+    /// <param name="field">The variable to use, acquire with 'typeof(Class).GetField("variableName")'</param>
+    /// <param name="Enable">Add or remove the bind for use</param>
+    /// <param name="UpdateRef">Set the value of the variable to what's in the Config, if it exists</param>
+    public void BindToConfig(object instance, FieldInfo field, bool Enable, bool UpdateRef = true)
+    {
+        if (Enable)
+        {
+            FieldRefList.Add(new object[] { instance, field });
+            if (UpdateRef)
+                ConfigToFieldRef(instance, field);
+        }
+        else
+        {
+            FieldRefList.Remove(new object[] { instance, field });
+        }
+    }
+
+
+    private void ConfigToFieldRef(object instance, FieldInfo field)
+    {
+        if (field.FieldType == typeof(float))
+        {
+            float cache = 0f;
+            if (TryGetConfigF(field.Name, ref cache))
+            {
+                field.SetValue(instance, cache);
+            }
+        }
+        else
+        {
+            object cache = null;
+            if (TryGetConfig(field.Name, ref cache))
+            {
+                field.SetValue(instance, cache);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get a value of a specified name from the Config
+    /// </summary>
+    /// <typeparam name="T">The type of object being acquired</typeparam>
+    /// <param name="ConfigID">The name of the object to try to get</param>
+    /// <param name="value">Returns the object as type if it exists</param>
+    /// <returns>Returns true if the object exists</returns>
+    public bool TryGetConfig<T>(string ConfigID, ref T value)
+    {
+        object cache = null;
+
+        bool result = this.Config.TryGetValue(ConfigID, out cache);
+        if (result)
+        {
+            value = (T)cache;
+        }
+        return result;
+    }
+    /// <summary>
+    /// Get a float value of a specified name from the Config
+    /// </summary>
+    /// <param name="ConfigID">The name of the float value to try to get</param>
+    /// <param name="value">Returns the float value if it exists</param>
+    /// <returns>Returns true if the object exists</returns>
+    public bool TryGetConfigF(string ConfigID, ref float value)
+    {
+        object cache = null;
+        bool result = this.Config.TryGetValue(ConfigID, out cache);
+        if (result)
+        {
+            value = Convert.ToInt64(cache);
+        }
+        return result;
+    }
+    /// <summary>
+    /// Write Config changes to the Config file
+    /// </summary>
+    /// <param name="UpdateFromRefList">Apply binded fields to the Config and file</param>
+    /// <returns>Returns true if successful</returns>
+    public bool WriteConfigJsonFile(bool UpdateFromRefList = true)
+    {
+        try
+        {
+            if (UpdateFromRefList)
+            {
+                foreach (object[] field in FieldRefList)
+                {
+                    FieldInfo finfo = (FieldInfo)field[1];
+                    Config.Remove(finfo.Name);
+                    Config.Add(finfo.Name, finfo.GetValue(field[0]));
+                }
+            }
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string json = JsonConvert.SerializeObject(Config, settings);
+            File.WriteAllText(ConfigJsonPath, json);
+
+            return true;
+        }
+        catch (Exception e)
+        {
+            UnityEngine.Debug.Log("ERROR! config.json deserialization failed.\n" + e.Message + "\n" + e.StackTrace);
+            return false;
+        }
+    }
+
+    public static QMod FromJsonFile(string file)
+    {
+        try
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string json = File.ReadAllText(file);
+            QMod mod = JsonConvert.DeserializeObject<QMod>(json, settings);
+
+            mod.ModJsonPath = file;
+            string file2 = Path.Combine(file, "..\\config.json");
+
+            mod.ConfigJsonPath = file2;
+
+            if (File.Exists(file2))
+            {
+                try
+                {
+                    json = File.ReadAllText(file2);
+                    mod.Config = JsonConvert.DeserializeObject<Dictionary<string, object>>(json, settings);
+                }
+                catch (Exception e)
+                {
+                    QModInstaller.QModPatcher.AddLog("ERROR! config.json deserialization failed.");
+                    QModInstaller.QModPatcher.AddLog(e.Message);
+                    QModInstaller.QModPatcher.AddLog(e.StackTrace);
+                }
+            }
+
+            return mod;
+        }
+        catch (Exception e)
+        {
+            QModInstaller.QModPatcher.AddLog("ERROR! mod.json deserialization failed!");
+            QModInstaller.QModPatcher.AddLog(e.Message);
+            QModInstaller.QModPatcher.AddLog(e.StackTrace);
+
+            return null;
+        }
+    }
+    /// <summary>
+    /// Reload the Config file
+    /// </summary>
+    /// <param name="ApplyToRefList">Apply changes loaded from the Config file to binded fields</param>
+    /// <returns>Returns true if successful</returns>
+    public bool ReadConfigJsonFile(bool ApplyToRefList = true)
+    {
+        try
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string json = File.ReadAllText(ModJsonPath);
+            Config = JsonConvert.DeserializeObject<Dictionary<string,object>>(ConfigJsonPath, settings);
+            if (ApplyToRefList)
+            {
+                foreach (object[] field in FieldRefList)
+                {
+                    ConfigToFieldRef(field[0], (FieldInfo)field[1]);
+                }
+            }
+            return true;
+        }
+        catch (Exception e)
+        {
+            UnityEngine.Debug.Log("ERROR! config.json deserialization failed.\n" + e.Message + "\n" + e.StackTrace);
+            return false;
         }
     }
 }
