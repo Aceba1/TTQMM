@@ -9,21 +9,32 @@ using QModInstaller;
 
 namespace ModHelper
 {
+    /// <summary>
+    /// A helper class to manage your mod's config.json file and use it's values
+    /// </summary>
     public class ModConfig
     {
-        public Dictionary<string, object> Config = new Dictionary<string, object>();
+        private Dictionary<string, object> Config = new Dictionary<string, object>();
 
-        public Dictionary<string, object[]> FieldRefList = new Dictionary<string, object[]>();
+        private Dictionary<string, object[]> FieldRefList = new Dictionary<string, object[]>();
         private Dictionary<string, int> FieldRefRepeatCount = new Dictionary<string, int>();
-
+        /// <summary>
+        /// The location of the Config file
+        /// </summary>
         public string ConfigLocation;
 
         /// <summary>
-        /// Load the Config to a new instance from the caller's directory
+        /// Load the Config from the current mod's directory
         /// </summary>
         public ModConfig()
         {
             string path = Path.Combine(Assembly.GetCallingAssembly().Location, "..\\config.json");
+            ConfigLocation = path;
+            ReadConfigJsonFile(false);
+        }
+
+        public ModConfig(string path)
+        {
             ConfigLocation = path;
             ReadConfigJsonFile(false);
         }
@@ -126,10 +137,11 @@ namespace ModHelper
             bool result = this.Config.TryGetValue(ConfigID, out cache);
             if (result)
             {
-                value = Convert.ToInt64(cache);
+                value = Convert.ToSingle(cache);
             }
             return result;
         }
+
         /// <summary>
         /// Apply binded fields to the Config, and write changes to the Config file
         /// </summary>
