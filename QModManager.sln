@@ -7,7 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QModInstaller", "QModInstal
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QModManager", "QModManager\QModManager.csproj", "{DA63F59D-4676-4726-AFEC-BD9D3682733F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{24DD59BB-C7E4-4E95-9AB9-EE379352141D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{B188AEE6-63FC-4DD3-86E6-3B11B20950D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockLog", "Examples\Projects\BlockLog\BlockLog.csproj", "{24DD59BB-C7E4-4E95-9AB9-EE379352141D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ac-ModHelper", "AcModHelper\Ac-ModHelper.csproj", "{367485C0-80F0-4773-A9E5-8658E6DD9F0E}"
 EndProject
@@ -36,6 +38,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{24DD59BB-C7E4-4E95-9AB9-EE379352141D} = {B188AEE6-63FC-4DD3-86E6-3B11B20950D3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {54A73C4F-4981-48CC-AD91-27D3D090D5D4}
