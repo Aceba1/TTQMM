@@ -4,9 +4,19 @@
         <name>AcModHelper</name>
     </assembly>
     <members>
+        <member name="T:ModHelper.ModConfig">
+            <summary>
+            A helper class to manage your mod's config.json file and use it's values
+            </summary>
+        </member>
+        <member name="F:ModHelper.ModConfig.ConfigLocation">
+            <summary>
+            The location of the Config file
+            </summary>
+        </member>
         <member name="M:ModHelper.ModConfig.#ctor">
             <summary>
-            Load the Config to a new instance from the caller's directory
+            Load the Config from the current mod's directory
             </summary>
         </member>
         <member name="M:ModHelper.ModConfig.GetFieldInfo``1(System.String)">
