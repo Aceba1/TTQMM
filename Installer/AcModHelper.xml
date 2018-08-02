@@ -9,6 +9,18 @@
             A helper class to manage your mod's config.json file and use it's values
             </summary>
         </member>
+        <member name="F:ModHelper.ModConfig.UseReflection">
+            <summary>
+            Allow the use of System.Reflection within these methods to read and write to binded class fields
+            </summary>
+        </member>
+        <member name="P:ModHelper.ModConfig.Item(System.String)">
+            <summary>
+            Get or set a Config value. If it doesn't exist, make a new one (If Reflection : Setting will also set corresponding variable)
+            </summary>
+            <param name="key">The name of the variable to index</param>
+            <returns></returns>
+        </member>
         <member name="F:ModHelper.ModConfig.ConfigLocation">
             <summary>
             The location of the Config file
@@ -19,35 +31,41 @@
             Load the Config from the current mod's directory
             </summary>
         </member>
+        <member name="M:ModHelper.ModConfig.#ctor(System.String)">
+            <summary>
+            Load the Config file from it's path
+            </summary>
+            <param name="path">The path of the Config file</param>
+        </member>
         <member name="M:ModHelper.ModConfig.GetFieldInfo``1(System.String)">
             <summary>
-            Get the FieldInfo of a class's variable
+            (Reflection) Get the FieldInfo of a class's variable
             </summary>
-            <typeparam name="T">The class to get the variable from</typeparam>
+            <typeparam name="T">The holding class to get the variable from</typeparam>
             <param name="VariableName">The name of the variable</param>
             <returns>FieldInfo representing the class's variable</returns>
         </member>
         <member name="M:ModHelper.ModConfig.GetFieldInfo(System.Type,System.String)">
             <summary>
-            Get the FieldInfo of a class's variable
+            (Reflection) Get the FieldInfo of a class's variable
             </summary>
-            <param name="T">The class to get the variable from</param>
+            <param name="T">The holding class to get the variable from</param>
             <param name="VariableName">The name of the variable</param>
             <returns>FieldInfo representing the class's variable</returns>
         </member>
         <member name="M:ModHelper.ModConfig.BindConfig(System.Object,System.Reflection.FieldInfo,System.Boolean)">
             <summary>
-            Bind a field to the Config for loading and saving
+            (Reflection) Bind a field to the Config for loading and saving (WARNING : Using this will set UseReflection to true)
             </summary>
             <param name="instance">The class instance to use, null if static</param>
-            <param name="field">The variable to use, acquire with 'typeof(Class).GetField("variableName")', or GetFieldInfo</param>
+            <param name="field">The variable to use, acquire with 'typeof(Class).GetField("variableName")', or ModConfig.GetFieldInfo</param>
             <param name="UpdateRef">Set the value of the variable to what's in the Config, if it exists</param>
         </member>
         <member name="M:ModHelper.ModConfig.BindConfig``1(``0,System.String,System.Boolean)">
-            /// <summary>
-            Bind a field to the Config for loading and saving
+            <summary>
+            (Reflection) Bind a field to the Config for loading and saving (WARNING : Using this will set UseReflection to true)
             </summary>
-            /// <typeparam name="T">The class type</typeparam>
+            <typeparam name="T">The class type</typeparam>
             <param name="instance">The class instance to use, null if static</param>
             <param name="VariableName">The name of the variable</param>
             <param name="UpdateRef">Set the value of the variable to what's in the Config, if it exists</param>
@@ -71,21 +89,26 @@
         </member>
         <member name="M:ModHelper.ModConfig.WriteConfigJsonFile">
             <summary>
-            Apply binded fields to the Config, and write changes to the Config file
+            Write Config data to the file (If Reflection: Apply all referenced fields to the Config before serializing)
             </summary>
-            <param name="UpdateFromRefList">Apply binded fields to the Config and file</param>
+            <returns>Returns true if successful</returns>
+        </member>
+        <member name="M:ModHelper.ModConfig.WriteConfigJsonFile(ModHelper.ModConfig)">
+            <summary>
+            Write Config data to the file (If Reflection: Apply all referenced fields to the Config before serializing)
+            </summary>
             <returns>Returns true if successful</returns>
         </member>
         <member name="M:ModHelper.ModConfig.ReapplyConfigToRef">
             <summary>
-            Reload all the Config values and push them to the references
+            (Reflection) Reload all the Config values and push them to the references
             </summary>
         </member>
-        <member name="M:ModHelper.ModConfig.ReadConfigJsonFile(System.Boolean)">
+        <member name="M:ModHelper.ModConfig.ReadConfigJsonFile(ModHelper.ModConfig)">
             <summary>
             Reload the Config file
             </summary>
-            <param name="ApplyToRefList">Apply changes loaded from the Config file to binded fields</param>
+            <param name="Config">The ModConfig class to add changes to (If instance uses Reflect: It will apply Config changes to binded fields)</param>
             <returns>Returns true if successful</returns>
         </member>
     </members>
