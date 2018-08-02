@@ -16,10 +16,15 @@
         </member>
         <member name="P:ModHelper.ModConfig.Item(System.String)">
             <summary>
-            Get or set a Config value. If it doesn't exist, make a new one (If Reflection : Setting will also set corresponding variable)
+            Get or set a Config value. If it doesn't exist, make a new one (If Reflection : Getting will try to get cooresponding field variable. Setting will also set corresponding variable)
             </summary>
             <param name="key">The name of the variable to index</param>
             <returns></returns>
+        </member>
+        <member name="F:ModHelper.ModConfig.FieldRefList">
+            <summary>
+            Key:ID Value[0]:FieldInfo Value[1]:Instance
+            </summary>
         </member>
         <member name="F:ModHelper.ModConfig.ConfigLocation">
             <summary>
@@ -104,11 +109,17 @@
             (Reflection) Reload all the Config values and push them to the references
             </summary>
         </member>
+        <member name="M:ModHelper.ModConfig.ReadConfigJsonFile">
+            <summary>
+            Reload the Config file (If Reflection: Apply Config changes to binded fields)
+            </summary>
+            <returns>Returns true if successful</returns>
+        </member>
         <member name="M:ModHelper.ModConfig.ReadConfigJsonFile(ModHelper.ModConfig)">
             <summary>
             Reload the Config file
             </summary>
-            <param name="Config">The ModConfig class to add changes to (If instance uses Reflect: It will apply Config changes to binded fields)</param>
+            <param name="Config">The ModConfig class to add changes to (If instance uses Reflection: It will apply Config changes to binded fields)</param>
             <returns>Returns true if successful</returns>
         </member>
     </members>

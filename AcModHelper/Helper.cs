@@ -20,7 +20,7 @@ namespace ModHelper
         public bool UseReflection = false;
 
         /// <summary>
-        /// Get or set a Config value. If it doesn't exist, make a new one (If Reflection : Setting will also set corresponding variable)
+        /// Get or set a Config value. If it doesn't exist, make a new one (If Reflection : Getting will try to get cooresponding field variable. Setting will also set corresponding variable)
         /// </summary>
         /// <param name="key">The name of the variable to index</param>
         /// <returns></returns>
@@ -28,15 +28,30 @@ namespace ModHelper
         {
             get
             {
-                return config[key];
+                object result;
+                if (UseReflection)
+                {
+                    if (FieldRefList.TryGetValue(key, out var e))
+                    {
+                        result = ((FieldInfo)e[0]).GetValue(e[1]);
+                    }
+                    else
+                    {
+                        result = config[key];
+                    }
+                }
+                else
+                {
+                    result = config[key];
+                }
+                return result;
             }
             set
             {
                 config[key] = value;
                 if (UseReflection)
                 {
-                    var e = FieldRefList[key];
-                    if (e != null)
+                    if (FieldRefList.TryGetValue(key, out var e))
                     {
                         ConfigToFieldRef(e[1], (FieldInfo)e[0], key);
                     }
@@ -44,6 +59,9 @@ namespace ModHelper
             }
         }
         private Dictionary<string, object> config = new Dictionary<string, object>();
+        /// <summary>
+        /// Key:ID Value[0]:FieldInfo Value[1]:Instance
+        /// </summary>
         private Dictionary<string, object[]> FieldRefList = new Dictionary<string, object[]>();
         private Dictionary<string, int> FieldRefRepeatCount = new Dictionary<string, int>();
 
@@ -160,7 +178,7 @@ namespace ModHelper
                     }
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
 
                 throw new Exception("Something wrong happened while trying to set a FieldInfo value\n" + e.Message + "\nThe FieldInfo was " + (field.FieldType == typeof(float) ? "a float (" : "not a float (") + field.FieldType.ToString() + ")\nThe name being searched for: " + Search);
@@ -224,7 +242,7 @@ namespace ModHelper
                         Config[finfo.Name] = finfo.GetValue(field.Value[1]);
                     }
 
-                string json = JsonConvert.SerializeObject(Config.config,Formatting.Indented);
+                string json = JsonConvert.SerializeObject(Config.config, Formatting.Indented);
 
                 File.WriteAllText(Config.ConfigLocation, json);
 
@@ -243,16 +261,24 @@ namespace ModHelper
         public void ReapplyConfigToRef()
         {
             if (UseReflection)
-            foreach (var field in FieldRefList)
-            {
-                ConfigToFieldRef(field.Value[1], (FieldInfo)field.Value[0], field.Key);
-            }
+                foreach (var field in FieldRefList)
+                {
+                    ConfigToFieldRef(field.Value[1], (FieldInfo)field.Value[0], field.Key);
+                }
         }
 
         /// <summary>
+        /// Reload the Config file (If Reflection: Apply Config changes to binded fields)
+        /// </summary>
+        /// <returns>Returns true if successful</returns>
+        public bool ReadConfigJsonFile()
+        {
+            return ModConfig.ReadConfigJsonFile(this);
+        }
+        /// <summary>
         /// Reload the Config file
         /// </summary>
-        /// <param name="Config">The ModConfig class to add changes to (If instance uses Reflect: It will apply Config changes to binded fields)</param>
+        /// <param name="Config">The ModConfig class to add changes to (If instance uses Reflection: It will apply Config changes to binded fields)</param>
         /// <returns>Returns true if successful</returns>
         public static bool ReadConfigJsonFile(ModConfig Config)
         {
@@ -267,7 +293,14 @@ namespace ModHelper
                 var config = JsonConvert.DeserializeObject<Dictionary<string, object>>(json, settings);
                 foreach (var pair in config)
                 {
-                    Config[pair.Key] = pair.Value;
+                    try
+                    {
+                        Config[pair.Key] = pair.Value;
+                    }
+                    catch (Exception e)
+                    {
+                        UnityEngine.Debug.Log("ERROR!\n" + pair.Key + "\n" + e.Message + "\n" + e.StackTrace);
+                    }
                 }
                 return true;
             }
