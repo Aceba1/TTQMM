@@ -11,8 +11,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{B1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockLog", "Examples\Projects\BlockLog\BlockLog.csproj", "{24DD59BB-C7E4-4E95-9AB9-EE379352141D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ac-ModHelper", "AcModHelper\Ac-ModHelper.csproj", "{367485C0-80F0-4773-A9E5-8658E6DD9F0E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,10 +29,6 @@ Global
 		{24DD59BB-C7E4-4E95-9AB9-EE379352141D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24DD59BB-C7E4-4E95-9AB9-EE379352141D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24DD59BB-C7E4-4E95-9AB9-EE379352141D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{367485C0-80F0-4773-A9E5-8658E6DD9F0E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{367485C0-80F0-4773-A9E5-8658E6DD9F0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{367485C0-80F0-4773-A9E5-8658E6DD9F0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{367485C0-80F0-4773-A9E5-8658E6DD9F0E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
