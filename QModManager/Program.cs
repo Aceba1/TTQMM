@@ -1,69 +1,63 @@
-﻿using QModInstaller;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
+using QModManager.Injector;
 
-namespace QModManager
+namespace QModManager.Executable
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            var parsedArgs = new Dictionary<string, string>();
+            //Dictionary<string, string> parsedArgs = new Dictionary<string, string>();
             bool forceInstall = false;
             bool forceUninstall = false;
+            string arg = "";
 
-            foreach (var arg in args)
-            {
-                if (arg.Contains("="))
-                {
-                    parsedArgs = args.Select(s => s.Split(new[] { '=' }, 1)).ToDictionary(s => s[0], s => s[1]);
-                }
-                else if (arg.StartsWith("-"))
-                {
-                    if (arg == "-i")
-                        forceInstall = true;
+            if (args.Length > 0)
+                arg = args[0];
 
-                    if (arg == "-u")
-                        forceUninstall = true;
-                }
-            }
+            if (arg == "-i")
+                forceInstall = true;
+            else if (arg == "-u")
+                forceUninstall = true;
 
-            //string SubnauticaDirectory = @"C:\Program Files (x86)\Steam\steamapps\common\TerraTech";
-            string TerraTechDirectory = Path.Combine(Environment.CurrentDirectory, @"..\..");
+            string Directory = Path.Combine(Environment.CurrentDirectory, @"..\..");
 
-            if (parsedArgs.Keys.Contains("TerraTechDirectory"))
-                TerraTechDirectory = parsedArgs["TerraTechDirectory"];
-            if (parsedArgs.Keys.Contains("Directory"))
-                TerraTechDirectory = parsedArgs["Directory"];
+            //if (parsedArgs.Keys.Contains("TerraTechDirectory"))
+            //    TerraTechDirectory = parsedArgs["TerraTechDirectory"];
+            //if (parsedArgs.Keys.Contains("Directory"))
+            //    TerraTechDirectory = parsedArgs["Directory"];
 
             string ManagedDirectory = Environment.CurrentDirectory;
+
             if (!File.Exists(ManagedDirectory + @"\Assembly-CSharp.dll"))
             {
-                Console.Write("Could not find Assembly file.");
-                if (forceInstall || forceUninstall)
-                {
-                    Console.WriteLine("Canceling.");
-                    return;
-                }
-                Console.WriteLine("\nPress any key to exit ...");
+                Console.WriteLine("Could not find the assembly file.");
+                Console.WriteLine("Please make sure you have installed QModManager in the right folder");
+                Console.WriteLine();
+                Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
                 return;
             }
-            QModInjector injector = new QModInjector(TerraTechDirectory, ManagedDirectory);
 
-            bool isInjected = injector.IsPatcherInjected();
+            QModInjector injector = new QModInjector(Directory, ManagedDirectory);
+
+            bool isInjected = injector.IsInjected();
+
             if (forceInstall)
             {
                 if (!isInjected)
                 {
-                    Console.WriteLine("Installing QMods...");
+                    Console.WriteLine("Installing QModManager...");
                     injector.Inject();
                 }
                 else
                 {
-                    Console.WriteLine("Tried to force install, but it was already injected. Skipping installation.");
+                    Console.WriteLine("Tried to force install, but it was already injected");
+                    Console.WriteLine("Skipping installation");
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadKey();
                     return;
                 }
             }
@@ -71,28 +65,15 @@ namespace QModManager
             {
                 if (isInjected)
                 {
-                    Console.WriteLine("Uninstalling QMods...");
-                    try
-                    {
-                        injector.Remove();
-                    }
-                    catch (NullReferenceException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.WriteLine(e.StackTrace);
-                        if (e.InnerException != null)
-                        {
-                            Console.WriteLine(e.InnerException.Message);
-                            Console.WriteLine(e.InnerException.StackTrace);
-                        }
-                        Console.ReadKey();
-                        Environment.Exit(0);
-                        return;
-                    }
+                    Console.WriteLine("Uninstalling QModManager...");
+                    injector.Remove();
                 }
                 else
                 {
-                    Console.WriteLine("Tried to force uninstall, but it was not injected. Skipping uninstallation.");
+                    Console.WriteLine("Tried to force uninstall, but it was not injected");
+                    Console.WriteLine("Skipping uninstallation");
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to exit...");
                     return;
                 }
             }
@@ -100,50 +81,46 @@ namespace QModManager
             {
                 if (!isInjected)
                 {
-                    Console.Write("No patch detected, install? [Y/N] ");
+                    Console.WriteLine("No patch detected, install? [Y/N] > ");
                     var key = Console.ReadKey().Key;
                     Console.WriteLine();
                     if (key == ConsoleKey.Y)
                     {
-                        Console.WriteLine("Installing... ");
-                        if (injector.Inject())
-                            Console.WriteLine("QMods was installed!");
-                        else
-                            Console.WriteLine("There was a problem installing QMods.\nPlease contact us on Discord (discord.gg/WsvbVrP)");
+                        Console.WriteLine("Installing QModManager...");
+                        injector.Inject();
+                        //if (injector.Inject())
+                        //    Console.WriteLine("QMods was installed!");
+                        //else
+                        //    Console.WriteLine("There was a problem installing QMods.\nPlease contact us on Discord (discord.gg/WsvbVrP)");
                     }
                     else if (key == ConsoleKey.N)
                     {
-                        Console.WriteLine("Installation aborted.");
                         Console.WriteLine("Press any key to exit...");
                         Console.ReadKey();
-                        Environment.Exit(0);
+                        return;
                     }
                 }
                 else
                 {
-                    Console.Write("Patch already installed, remove? [Y/N] ");
+                    Console.Write("Patch already installed, remove? [Y/N] > ");
                     var key = Console.ReadKey().Key;
                     Console.WriteLine();
                     if (key == ConsoleKey.Y)
                     {
-                        Console.Write("Removing... ");
-                        if (injector.Remove())
-                            Console.WriteLine("QMods was removed!");
-                        else
-                            Console.WriteLine("There was a problem removing QMods. You may have to reinstall / verify the game's files\nPlease contact us on Discord (discord.gg/WsvbVrP)");
+                        Console.Write("Removing QModManager...");
+                        injector.Remove();
+                        //if (injector.Remove())
+                        //    Console.WriteLine("QMods was removed!");
+                        //else
+                        //    Console.WriteLine("There was a problem removing QMods. You may have to reinstall / verify the game's files\nPlease contact us on Discord (discord.gg/WsvbVrP)");
                     }
                     else if (key == ConsoleKey.N)
                     {
                         Console.WriteLine("Press any key to exit...");
                         Console.ReadKey();
-                        Environment.Exit(0);
+                        return;
                     }
-
                 }
-
-                Console.WriteLine("Press any key to exit...");
-
-                Console.ReadKey();
             }
         }
     }
