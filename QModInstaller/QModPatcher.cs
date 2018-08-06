@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine.UI;
 
-namespace QModInstaller
+namespace QModManager.Patcher
 {
     public class QModPatcher
     {
