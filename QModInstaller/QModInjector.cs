@@ -1,28 +1,26 @@
-﻿#pragma warning disable IDE1006
-
-using Mono.Cecil;
+﻿using Mono.Cecil;
 using Mono.Cecil.Cil;
 using System;
 using System.IO;
 using System.Linq;
+using QModManager.Utility;
 
-namespace QModInstaller
+namespace QModManager.Injector
 {
     public class QModInjector
     {
-        private string terraTechDirectory;
-        private string managedDirectory;
-        private string installerFilename = @"QModInstaller.dll";
-        private string mainFilename = @"\Assembly-CSharp.dll";
-        private string backupFilename = @"\Assembly-CSharp.qoriginal.dll";
-
+        public string gameDirectory;
+        public string managedDirectory;
+        public string installerFilename = @"QModInstaller.dll";
+        public string mainFilename = @"\Assembly-CSharp.dll";
+        public string backupFilename = @"\Assembly-CSharp.qoriginal.dll";
 
         public QModInjector(string dir, string managedDir = null)
         {
-            terraTechDirectory = dir;
+            gameDirectory = dir;
 			if (managedDir == null)
 			{
-				managedDirectory = Path.Combine(terraTechDirectory, @"TerraTechWin64_Data\Managed");
+				managedDirectory = Path.Combine(gameDirectory, @"TerraTechWin64_Data\Managed");
 			}
 			else
 			{
@@ -32,117 +30,95 @@ namespace QModInstaller
             backupFilename = managedDirectory + backupFilename;
         }
 
-
-        public bool IsPatcherInjected()
-        {
-            return isInjected();
-        }
-
-
-        public bool Inject()
+        public void Inject()
         {
             try
             {
-                if (isInjected()) return false;
+                if (IsInjected())
+                {
+                    Console.WriteLine("Tried to install, but it was already injected");
+                    Console.WriteLine("Skipping installation");
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadKey();
+                    Environment.Exit(0);
+                }
 
-                // read dll
-                var game = AssemblyDefinition.ReadAssembly(mainFilename);
+                AssemblyDefinition game = AssemblyDefinition.ReadAssembly(mainFilename);
 
-                // delete old backups
                 if (File.Exists(backupFilename))
                     File.Delete(backupFilename);
 
-                // save a copy of the dll as a backup
                 game.Write(backupFilename);
 
-                // load patcher module
-                var installer = AssemblyDefinition.ReadAssembly(installerFilename);
-                var patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.Single(x => x.Name == "Patch");
+                AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
+                MethodDefinition patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.First(x => x.Name == "Patch");
 
-                // target the injection method
-                var type = game.MainModule.GetType("TankCamera");
-                var method = type.Methods.First(x => x.Name == "Awake");
+                TypeDefinition type = game.MainModule.GetType("TankCamera");
+                MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
 
-                // inject
                 method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(OpCodes.Call, method.Module.Import(patchMethod)));
 
-                // save changes under original filename
                 game.Write(mainFilename);
 
-                if (!Directory.Exists(terraTechDirectory + @"\QMods"))
-                    Directory.CreateDirectory(terraTechDirectory + @"\QMods");
+                if (!Directory.Exists(gameDirectory + @"\QMods"))
+                    Directory.CreateDirectory(gameDirectory + @"\QMods");
 
-                return true;
-            }
-            catch (NullReferenceException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                if (e.InnerException != null)
-                {
-                    Console.WriteLine(e.InnerException.Message);
-                    Console.WriteLine(e.InnerException.StackTrace);
-                }
+                Console.WriteLine();
+                Console.WriteLine("QModManager installed successfully");
+                Console.WriteLine();
+                Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
                 Environment.Exit(0);
-                return false;
+            }
+            catch (Exception e)
+            {
+                ExceptionUtils.ParseException(e);
             }
         }
-
-
-        public bool Remove()
+        public void Remove()
         {
             try
             {
-                // if a backup exists
                 if (File.Exists(backupFilename))
                 {
-                    // remove the dirty dll
                     File.Delete(mainFilename);
 
-                    // move the backup into its place
                     File.Move(backupFilename, mainFilename);
 
-                    return true;
+                    Console.WriteLine();
+                    Console.WriteLine("QModManager uninstalled successfully");
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to exit...");
+                    Console.ReadKey();
+                    Environment.Exit(0);
                 }
 
-                return false;
-            }
-            catch (IOException e)
-            {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                if (e.InnerException != null)
-                {
-                    Console.WriteLine(e.InnerException.Message);
-                    Console.WriteLine(e.InnerException.StackTrace);
-                }
+                Console.WriteLine();
+                Console.WriteLine("Cannot uninstall, file 'Assembly-CSharp-qoriginal.dll' doesn't exist");
+                Console.WriteLine("To uninstall, you will need to verify game contents in steam");
+                Console.WriteLine();
+                Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
                 Environment.Exit(0);
-                return false;
+            }
+            catch (Exception e)
+            {
+                ExceptionUtils.ParseException(e);
             }
         }
 
-
-        private bool isInjected()
+        public bool IsInjected()
         {
             try
             {
                 var game = AssemblyDefinition.ReadAssembly(mainFilename);
 
-                var rClass = "TankCamera";
-                var rMethod = "Awake";
+                AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
+                MethodDefinition patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.Single(x => x.Name == "Patch");
 
-                TypeDefinition type = null;
-                MethodDefinition method = null;
-
-                type = game.MainModule.GetType(rClass);
-                method = type.Methods.First(x => x.Name == rMethod);
-
-                var installer = AssemblyDefinition.ReadAssembly(installerFilename);
-                var patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.FirstOrDefault(x => x.Name == "Patch");
-
-                bool patched = false;
+                TypeDefinition type = game.MainModule.GetType("TankCamera");
+                MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
 
                 foreach (var instruction in method.Body.Instructions)
                 {
@@ -152,22 +128,53 @@ namespace QModInstaller
                     }
                 }
 
-                return patched;
-
+                return false;
             }
-            catch (NullReferenceException e)
+            catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.StackTrace);
-                if (e.InnerException != null)
-                {
-                    Console.WriteLine(e.InnerException.Message);
-                    Console.WriteLine(e.InnerException.StackTrace);
-                }
-                Console.ReadKey();
-                Environment.Exit(0);
+                ExceptionUtils.ParseException(e);
                 return false;
             }
         }
+    }
+}
+
+namespace QModManager.Utility
+{
+    public static class ExceptionUtils
+    {
+        public static void OutputInnerExceptionRecursively(Exception e)
+        {
+            if (e.InnerException != null)
+            {
+                Console.WriteLine("Inner exception:");
+                Console.WriteLine(e.InnerException.Message);
+                Console.WriteLine(e.InnerException.StackTrace);
+                OutputInnerExceptionRecursively(e.InnerException);
+            }
+        }
+
+        public static void ParseException(Exception e, bool exit = true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Uh-oh. An exception has occurred. This is not a good thing.");
+            Console.WriteLine("Please take a screenshot and open a bug report on nexus");
+            Console.WriteLine();
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+            OutputInnerExceptionRecursively(e);
+            Console.WriteLine();
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+            if (exit) Environment.Exit(0);
+        }
+    }
+}
+
+namespace QModInstaller
+{
+    public class QModPatcher
+    {
+        public static void Patch() => QModManager.Patcher.QModPatcher.Patch();
     }
 }
