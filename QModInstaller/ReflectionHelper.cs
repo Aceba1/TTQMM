@@ -1,7 +1,7 @@
 ﻿// Code from https://github.com/ahk1221/SMLHelper/blob/2.0/SMLHelper/Utility/ReflectionHelper.cs
 using System.Reflection;
 
-namespace QModInstaller
+namespace QModManager.Utility
 {
     /// <summary>
     /// An extension method class for simplifying reflection calls for improved readability.
