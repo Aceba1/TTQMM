@@ -1,5 +1,6 @@
 ﻿using Harmony;
 using Newtonsoft.Json;
+using QModManager.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
