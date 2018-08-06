@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
-using QModManager.Injector;
 
-namespace QModManager.Executable
+namespace QModManager
 {
-    public static class Program
+    public static class ConsoleExecutable
     {
         public static void Main(string[] args)
         {

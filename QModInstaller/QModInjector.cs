@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using QModManager.Utility;
 
-namespace QModManager.Injector
+namespace QModManager
 {
     public class QModInjector
     {
@@ -175,6 +175,6 @@ namespace QModInstaller
 {
     public class QModPatcher
     {
-        public static void Patch() => QModManager.Patcher.QModPatcher.Patch();
+        public static void Patch() => QModManager.QModPatcher.Patch();
     }
 }
