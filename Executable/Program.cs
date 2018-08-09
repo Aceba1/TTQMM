@@ -80,7 +80,7 @@ namespace QModManager
             {
                 if (!isInjected)
                 {
-                    Console.WriteLine("No patch detected, install? [Y/N] > ");
+                    Console.Write("No patch detected, install? [Y/N] > ");
                     var key = Console.ReadKey().Key;
                     Console.WriteLine();
                     if (key == ConsoleKey.Y)
