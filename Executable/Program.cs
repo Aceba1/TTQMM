@@ -20,7 +20,7 @@ namespace QModManager
             else if (arg == "-u")
                 forceUninstall = true;
 
-            string Directory = Path.Combine(Environment.CurrentDirectory, @"..\..");
+            string Directory = Path.Combine(Environment.CurrentDirectory, @"../..");
 
             //if (parsedArgs.Keys.Contains("TerraTechDirectory"))
             //    TerraTechDirectory = parsedArgs["TerraTechDirectory"];
@@ -29,7 +29,7 @@ namespace QModManager
 
             string ManagedDirectory = Environment.CurrentDirectory;
 
-            if (!File.Exists(ManagedDirectory + @"\Assembly-CSharp.dll"))
+            if (!File.Exists(ManagedDirectory + @"/Assembly-CSharp.dll"))
             {
                 Console.WriteLine("Could not find the assembly file.");
                 Console.WriteLine("Please make sure you have installed QModManager in the right folder");

@@ -12,15 +12,15 @@ namespace QModManager
         public string gameDirectory;
         public string managedDirectory;
         public string installerFilename = @"QModInstaller.dll";
-        public string mainFilename = @"\Assembly-CSharp.dll";
-        public string backupFilename = @"\Assembly-CSharp.qoriginal.dll";
+        public string mainFilename = @"/Assembly-CSharp.dll";
+        public string backupFilename = @"/Assembly-CSharp.qoriginal.dll";
 
         public QModInjector(string dir, string managedDir = null)
         {
             gameDirectory = dir;
 			if (managedDir == null)
 			{
-				managedDirectory = Path.Combine(gameDirectory, @"TerraTechWin64_Data\Managed");
+				managedDirectory = Path.Combine(gameDirectory, @"TerraTechWin64_Data/Managed");
 			}
 			else
 			{
@@ -61,8 +61,8 @@ namespace QModManager
 
                 game.Write(mainFilename);
 
-                if (!Directory.Exists(gameDirectory + @"\QMods"))
-                    Directory.CreateDirectory(gameDirectory + @"\QMods");
+                if (!Directory.Exists(gameDirectory + @"/QMods"))
+                    Directory.CreateDirectory(gameDirectory + @"/QMods");
 
                 Console.WriteLine();
                 Console.WriteLine("QModManager installed successfully");
