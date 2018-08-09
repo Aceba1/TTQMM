@@ -76,9 +76,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="QModInjector.cs" />
+    <Compile Include="Injector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QModPatcher.cs" />
+    <Compile Include="Patcher.cs" />
     <Compile Include="ReflectionHelper.cs" />
   </ItemGroup>
   <ItemGroup>

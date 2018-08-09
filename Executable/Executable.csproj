@@ -52,7 +52,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>QModManager.Program</StartupObject>
+    <StartupObject>QModManager.ConsoleExecutable</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>icon.ico</ApplicationIcon>
@@ -64,9 +64,6 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\Dependencies\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="QModInstaller">
-      <HintPath>..\QModInstaller\bin\Debug\QModInstaller.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -119,6 +116,10 @@
     <ProjectReference Include="..\QModInstaller\QModInstaller.csproj">
       <Project>{e00b7fe8-0f1d-4ae6-9e47-4bfd81537f14}</Project>
       <Name>QModInstaller</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QModManager\QModManager.csproj">
+      <Project>{e00b7fe8-0f1d-4ae6-9e47-4bfd81537f14}</Project>
+      <Name>QModManager</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
