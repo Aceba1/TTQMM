@@ -31,12 +31,10 @@ namespace QModManager
 
             if (!File.Exists(ManagedDirectory + @"/Assembly-CSharp.dll"))
             {
-                Console.WriteLine(
-                    "Could not find the assembly file.\n" +
-                    "Please make sure you have installed QModManager in the right folder\n" +
-                    "\n" +
-                    "Press any key to exit..."
-                    );
+                Console.WriteLine("Could not find the assembly file.");
+                Console.WriteLine("Please make sure you have installed QModManager in the right folder");
+                Console.WriteLine();
+                Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
                 return;
             }
@@ -82,7 +80,7 @@ namespace QModManager
             {
                 if (!isInjected)
                 {
-                    Console.Write("No patch detected, install? [Y/N] > ");
+                    Console.WriteLine("No patch detected, install? [Y/N] > ");
                     var key = Console.ReadKey().Key;
                     Console.WriteLine();
                     if (key == ConsoleKey.Y)
