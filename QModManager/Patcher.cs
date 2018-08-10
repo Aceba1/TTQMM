@@ -1,5 +1,6 @@
 ﻿using Harmony;
 using Newtonsoft.Json;
+using QModManager.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,7 +10,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine.UI;
 
-namespace QModInstaller
+namespace QModManager
 {
     public class QModPatcher
     {
@@ -258,7 +259,7 @@ namespace QModInstaller
         /// <summary>
         /// The path of the QMods folder. If game is not launched through
         /// </summary>
-        internal static string QModBaseDir = Environment.CurrentDirectory.Contains("system32") && Environment.CurrentDirectory.Contains("Windows") ? "ERR" : Environment.CurrentDirectory + @"\QMods";
+        internal static string QModBaseDir = Environment.CurrentDirectory.Contains("system32") && Environment.CurrentDirectory.Contains("Windows") ? "ERR" : Environment.CurrentDirectory + @"/QMods";
 
         /// <summary>
         /// A list of all of the loaded mods
