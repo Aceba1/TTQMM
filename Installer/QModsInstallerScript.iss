@@ -6,14 +6,11 @@
 #define Publisher "AlexejheroYTB, Aceba1 & weskey007"
 #define URL "https://github.com/QModManager/TerraTeCh"
 
-#define SubnauticaGUID '{52CC87AA-645D-40FB-8411-510142191678}'
-#define TerraTechGUID '{53D64B81-BFF9-47E3-A599-66C18ED14B71}'
-
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={code:GetGUID}
+AppId={{53D64B81-BFF9-47E3-A599-66C18ED14B71}
 AppName={#Name}
 AppVersion={#Version}
 AppVerName={#Name} {#Version}
@@ -55,54 +52,12 @@ Source: "QModInstaller.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags
 Source: "QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: ignoreversion
 
 [Run]
-Filename: "{app}\Subnautica_Data\Managed\QModManager.exe"; Parameters: """-i"" ""Game=Subnautica"""; Check: IsSubnautica
-Filename: "{app}\TerraTechWin64_Data\Managed\QModManager.exe"; Parameters: """-i"" ""Game=TerraTech"""; Check: IsTerraTech
+Filename: "{app}\TerraTechWin64_Data\Managed\QModManager.exe"; Parameters: "-i"
 
 [UninstallRun]
-Filename: "{app}\Subnautica_Data\Managed\QModManager.exe"; Parameters: """-u"" ""Game=Subnautica"""; Check: IsSubnautica
-Filename: "{app}\TerraTechWin64_Data\Managed\QModManager.exe"; Parameters: """-u"" ""Game=TerraTech"""; Check: IsTerraTech
+Filename: "{app}\TerraTechWin64_Data\Managed\QModManager.exe"; Parameters: "-u"
 
 [Code]
-function GetGUID(def: string): string;
-begin
-  if FileExists({app} + '\Subnautica.exe') then
-  begin
-    Result := '{52CC87AA-645D-40FB-8411-510142191678}';
-    Exit;
-  end;
-  if FileExists({app} + '\TerraTechWin64.exe') then
-  begin
-    Result := '{53D64B81-BFF9-47E3-A599-66C18ED14B71}';
-    Exit;
-  end;
-end;
-
-function IsSubnautica: Boolean;
-begin
-  if FileExists({app} + '\Subnautica.exe') then
-  begin
-    Result := True;
-  end
-  else
-  begin
-    Result := False;
-  end;
-  Exit;
-end;
-
-function IsTerraTech: Boolean;
-begin
-  if FileExists({app} + '\TerraTechWin64.exe') then
-  begin
-    Result := True;
-  end
-  else
-  begin
-    Result := False;
-  end;
-  Exit;
-end;
-
 function GetDefaultDir(def: string): string;
 var
 I : Integer;
