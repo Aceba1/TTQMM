@@ -7,20 +7,38 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Executable", "Executable\Ex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QModManager", "QModManager\QModManager.csproj", "{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}"
 EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "Installer (WIX)", "Installer (WIX)\Installer (WIX).wixproj", "{2648A7CC-1536-421F-9E6E-5AEB1D2D93F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Debug|x86.Build.0 = Debug|Any CPU
 		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA63F59D-4676-4726-AFEC-BD9D3682733F}.Release|x86.Build.0 = Release|Any CPU
 		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Debug|x86.Build.0 = Debug|Any CPU
 		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Release|x86.ActiveCfg = Release|Any CPU
+		{E00B7FE8-0F1D-4AE6-9E47-4BFD81537F14}.Release|x86.Build.0 = Release|Any CPU
+		{2648A7CC-1536-421F-9E6E-5AEB1D2D93F7}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{2648A7CC-1536-421F-9E6E-5AEB1D2D93F7}.Debug|x86.ActiveCfg = Debug|x86
+		{2648A7CC-1536-421F-9E6E-5AEB1D2D93F7}.Debug|x86.Build.0 = Debug|x86
+		{2648A7CC-1536-421F-9E6E-5AEB1D2D93F7}.Release|Any CPU.ActiveCfg = Release|x86
+		{2648A7CC-1536-421F-9E6E-5AEB1D2D93F7}.Release|x86.ActiveCfg = Release|x86
+		{2648A7CC-1536-421F-9E6E-5AEB1D2D93F7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

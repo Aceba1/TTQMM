@@ -113,7 +113,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\QModInstaller\QModInstaller.csproj">
+    <ProjectReference Include="..\QModManager\QModManager.csproj">
       <Project>{e00b7fe8-0f1d-4ae6-9e47-4bfd81537f14}</Project>
       <Name>QModInstaller</Name>
     </ProjectReference>
