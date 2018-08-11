@@ -6,8 +6,8 @@
 #define Publisher "AlexejheroYTB, Aceba1 & weskey007"
 #define URL "https://github.com/QModManager/TerraTeCh"
 
-#define SubnauticaGUID ""
-#define TerraTechGUID ""
+#define SubnauticaGUID '{52CC87AA-645D-40FB-8411-510142191678}'
+#define TerraTechGUID '{53D64B81-BFF9-47E3-A599-66C18ED14B71}'
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -29,8 +29,8 @@ OutputBaseFilename=QModManager_Setup
 SetupIconFile=..\Assets\icon.ico
 Compression=lzma
 SolidCompression=yes
-WizardImageFile=..\Assets\WizardImage.bmp
-WizardSmallImageFile=..\Assets\WizardSmallImage.bmp
+WizardImageFile=..\Assets\LargeImage.bmp
+WizardSmallImageFile=..\Assets\SmallImage.bmp
 DisableWelcomePage=no
 DisableDirPage=no
 DirExistsWarning=no
