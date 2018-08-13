@@ -48,7 +48,7 @@ UninstallDisplayIcon=..\Assets\icon.ico
 UninstallDisplayName={#Name}
 UsePreviousAppDir=no
 UsePreviousLanguage=no
-WizardImageFile=..\Assets\LargeImage.bmp
+WizardImageFile=..\Assets\Placeholder.bmp
 WizardSmallImageFile=..\Assets\SmallImage.bmp
 
 [Languages]
