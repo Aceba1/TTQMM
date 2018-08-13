@@ -10,8 +10,12 @@
 #define InstallerTest True
 
 [Setup]
-AllowNetworkDrive=no
-AllowUNCPath=no
+#if InstallerTest == False
+  AllowNetworkDrive=no
+  AllowUNCPath=no
+#else
+  AllowRootDirectory=yes
+#endif
 AlwaysShowDirOnReadyPage=yes
 AppendDefaultDirName=no
 AppId=StringToGUID({code:GetGUID})
@@ -42,7 +46,7 @@ SetupIconFile=..\Assets\icon.ico
 SolidCompression=yes
 UninstallDisplayIcon=..\Assets\icon.ico
 UninstallDisplayName={#Name}
-UsePreviousAppDir=yes
+UsePreviousAppDir=no
 UsePreviousLanguage=no
 WizardImageFile=..\Assets\LargeImage.bmp
 WizardSmallImageFile=..\Assets\SmallImage.bmp
@@ -77,7 +81,11 @@ SelectDirBrowseLabel=If this is correct, click Next. If you need to select a dif
 WizardSelectComponents=Review install
 SelectComponentsDesc=
 SelectComponentsLabel2=Cannot install in this folder
-
+#if InstallerTest == True
+  WizardReady=Installer test
+  ReadyLabel1=This is just an installer test
+  ReadyLabel2a=As this is just a test for the installer, you cannot actually install it. Thank you for trying it out!
+#endif  
 ExitSetupMessage=Setup is not complete. If you exit now, {#Name} will not be installed.%nExit Setup?
 
 [Types]
