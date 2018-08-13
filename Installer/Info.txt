@@ -1,0 +1,4 @@
+Please make sure that you have selected the base folder of the game
+QModManager currently supports the following games:
+- Subnautica
+- TerraTech
