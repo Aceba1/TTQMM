@@ -1,5 +1,5 @@
 #define Name "QModManager"
-#define Version "2.0-InstallerTest3"
+#define Version "2.0-InstallerTest4"
 #define Publisher "the QModManager team"
 #define URL "https://github.com/QModManager"
 
@@ -57,12 +57,12 @@ Source: "QModInstaller.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags
 Source: "QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: IgnoreVersion;
 
 [Run]
-Filename: {app}\Subnautica_Data\Managed\QModManager.exe; Parameters: -i Game=Subnautica; Check: IsSubnautica
-Filename: {app}\TerraTechWin64_Data\Managed\QModManager.exe; Parameters: -i Game=TerraTech; Check: IsTerraTech
+Filename: {app}\Subnautica_Data\Managed\QModManager.exe; Parameters: "Type=Install,Game=Subnautica"; Check: IsSubnautica
+Filename: {app}\TerraTechWin64_Data\Managed\QModManager.exe; Parameters: "Type=Install,Game=TerraTech"; Check: IsTerraTech
 
 [UninstallRun]
-Filename: {app}\Subnautica_Data\Managed\QModManager.exe; Parameters: -u Game=Subnautica; Check: IsSubnautica
-Filename: {app}\TerraTechWin64_Data\Managed\QModManager.exe; Parameters: -u Game=TerraTech; Check: IsTerraTech
+Filename: {app}\Subnautica_Data\Managed\QModManager.exe; Parameters: "Type=Uninstall,Game=Subnautica"; Check: IsSubnautica
+Filename: {app}\TerraTechWin64_Data\Managed\QModManager.exe; Parameters: "Type=Uninstall,Game=TerraTech"; Check: IsTerraTech
 
 [Messages]
 BeveledLabel={#Name} {#Version}
