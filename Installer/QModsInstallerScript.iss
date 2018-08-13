@@ -1,16 +1,16 @@
 #define Name "QModManager"
-#define Version "2.0-InstallerTest"
+#define Version "2.0-InstallerTest3"
 #define Publisher "the QModManager team"
 #define URL "https://github.com/QModManager"
+
+#define PreRelease true
+#define InstallerTest true
 
 #define SubnauticaGUID '{52CC87AA-645D-40FB-8411-510142191678}'
 #define TerraTechGUID '{53D64B81-BFF9-47E3-A599-66C18ED14B71}'
 
-#define PreRelease True
-#define InstallerTest True
-
 [Setup]
-#if InstallerTest == False
+#if InstallerTest == false
   AllowNetworkDrive=no
   AllowUNCPath=no
 #else
@@ -26,9 +26,8 @@ AppSupportURL={#URL}
 AppUpdatesURL={#URL}
 AppVerName={#Name} {#Version}
 AppVersion={#Version}
-CloseApplications=yes
 Compression=lzma
-DefaultDirName=C:/
+DefaultDirName=.
 DirExistsWarning=no
 DisableDirPage=no
 DisableProgramGroupPage=yes
@@ -37,9 +36,6 @@ EnableDirDoesntExistWarning=yes
 InfoBeforeFile=Info.txt
 OutputBaseFilename=QModManager_Setup
 OutputDir=.
-#if PreRelease == True
-  Password=YES
-#endif
 PrivilegesRequired=admin
 RestartApplications=yes
 SetupIconFile=..\Assets\icon.ico
@@ -58,15 +54,15 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "0Harmony.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: IgnoreVersion
 Source: "Mono.Cecil.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: IgnoreVersion
 Source: "QModInstaller.dll"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: IgnoreVersion
-Source: "QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: IgnoreVersion
+Source: "QModManager.exe"; DestDir: "{app}\TerraTechWin64_Data\Managed"; Flags: IgnoreVersion;
 
 [Run]
-Filename: "{app}\Subnautica_Data\Managed\QModManager.exe"; Parameters: """-i"" ""Game=Subnautica"""; Check: IsSubnautica
-Filename: "{app}\TerraTechWin64_Data\Managed\QModManager.exe"; Parameters: """-i"" ""Game=TerraTech"""; Check: IsTerraTech
+Filename: {app}\Subnautica_Data\Managed\QModManager.exe; Parameters: -i Game=Subnautica; Check: IsSubnautica
+Filename: {app}\TerraTechWin64_Data\Managed\QModManager.exe; Parameters: -i Game=TerraTech; Check: IsTerraTech
 
 [UninstallRun]
-Filename: "{app}\Subnautica_Data\Managed\QModManager.exe"; Parameters: """-u"" ""Game=Subnautica"""; Check: IsSubnautica
-Filename: "{app}\TerraTechWin64_Data\Managed\QModManager.exe"; Parameters: """-u"" ""Game=TerraTech"""; Check: IsTerraTech
+Filename: {app}\Subnautica_Data\Managed\QModManager.exe; Parameters: -u Game=Subnautica; Check: IsSubnautica
+Filename: {app}\TerraTechWin64_Data\Managed\QModManager.exe; Parameters: -u Game=TerraTech; Check: IsTerraTech
 
 [Messages]
 BeveledLabel={#Name} {#Version}
@@ -74,17 +70,16 @@ WizardPassword=Warning
 PasswordLabel1=Please read the following important information before continuing.
 PasswordLabel3=You are trying to install a pre-release version of QModManager.%nPre-releases are unstable and might contain bugs.%nWe are not responsible for any crashes or world corruptions that might occur.%n%nPlease type 'YES' (without quotes) to continue with the installation.
 PasswordEditLabel=Consent:
-IncorrectPassword=You're not funny
 WizardSelectDir=Select install location
 SelectDirLabel3=Please select the install folder of the game.
 SelectDirBrowseLabel=If this is correct, click Next. If you need to select a different install folder, click Browse.
-WizardSelectComponents=Review install
+WizardSelectComponents=Review Install
 SelectComponentsDesc=
 SelectComponentsLabel2=Cannot install in this folder
-#if InstallerTest == True
+#if InstallerTest == true
   WizardReady=Installer test
   ReadyLabel1=This is just an installer test
-  ReadyLabel2a=As this is just a test for the installer, you cannot actually install it. Thank you for trying it out!
+  ReadyLabel2a=As this is just a dummy prototype for the installer, you cannot actually install it. Thank you for trying it out!
 #endif  
 ExitSetupMessage=Setup is not complete. If you exit now, {#Name} will not be installed.%nExit Setup?
 
@@ -100,62 +95,73 @@ Name: "qmm\tt"; Description: "Install for TerraTech"; Flags: exclusive fixed
 [Code]
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Installer test
-
-#if InstallerTest == True
-  function CurPageChanged_DisableReady(CurPageID: Integer): Boolean;
-  begin
-    if CurPageID = wpReady then
-    begin
-        WizardForm.NextButton.Enabled := False;
-    end
-  end;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Game detect
+
+var SN_Already: Boolean;
 
 function IsSubnautica: Boolean;
 var
   app: String;
 begin
   app := ExpandConstant('{app}')
-  //Result := True
+  //Result := true
   //Exit
   if (FileExists(app + '\Subnautica.exe')) then
   begin
     if (FileExists(app + '\Subnautica_Data\Managed\Assembly-CSharp.dll')) then
     begin
-      Result := True
+      Result := true
+      if SN_Already = false then
+      begin
+        Log('[GAME-DETECT] Subnautica is installed')
+        SN_Already := true;
+      end
     end
   end
   else
   begin
-    Result := False
-  end;
+    Result := false
+    if SN_Already = false then
+    begin
+      Log('[GAME-DETECT] Subnautica is not installed')
+      SN_Already := true;
+    end
+  end
 end;
+
+var TT_Already: Boolean;
 
 function IsTerraTech: Boolean;
 var
   app: String;
 begin
   app := ExpandConstant('{app}')
-  //Result := True
+  //Result := true
   //Exit
   if FileExists(app + '\TerraTechWin64.exe') then
   begin
     if (FileExists(app + '\TerraTechWin64_Data\Managed\Assembly-CSharp.dll')) then
     begin
-      Result := True
+      Result := true
+      if TT_Already = false then
+      begin
+        Log('[GAME-DETECT] TerraTech is installed')
+        TT_Already := true;
+      end
     end
   end
   else
   begin
-    Result := False
-  end;
+    Result := false
+    if TT_Already = false then
+    begin
+      Log('[GAME-DETECT] TerraTech is not installed')
+      TT_Already := true;
+    end
+  end
 end;
 
-function CurPageChanged_(CurPageID: Integer): Boolean;
+function CurPageChanged_SelectComponents(CurPageID: Integer): Boolean;
 var
   Index: Integer;
 begin
@@ -166,8 +172,9 @@ begin
     begin
       if IsSubnautica then
       begin
-        WizardForm.ComponentsList.Checked[Index] := True
+        WizardForm.ComponentsList.Checked[Index] := true
         WizardForm.SelectComponentsLabel.Caption := 'Install for Subnautica'
+        Log('[COMPONENTS] "Install for Subnautica" component checked')
       end
     end;
     Index := WizardForm.ComponentsList.Items.IndexOf('Install for TerraTech')
@@ -175,144 +182,18 @@ begin
     begin
       if IsTerraTech then
       begin
-        WizardForm.ComponentsList.Checked[Index] := True
+        WizardForm.ComponentsList.Checked[Index] := true
         WizardForm.SelectComponentsLabel.Caption := 'Install for TerraTech'
+        Log('[COMPONENTS] "Install for TerraTech" component checked')
       end
     end
-  end;
-end;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Password stuff
-
-#if PreRelease == True
-  var PasswordEditOnChangePrev: TNotifyEvent;
-
-  function CurPageChanged__(CurPageID: Integer): Boolean;
-  begin
-    if CurPageID = wpPassword then
-    begin
-      WizardForm.PasswordEdit.Password := False;
-      WizardForm.NextButton.Enabled := False;
-    end
-  end;
-
-  procedure PasswordEditOnChange(Sender: TObject);
-  begin
-    if (LowerCase(WizardForm.PasswordEdit.Text) = 'yes') or (LowerCase(WizardForm.PasswordEdit.Text) = 'no') then
-    begin
-      WizardForm.NextButton.Enabled := True
-    end
-    else
-    begin
-      WizardForm.NextButton.Enabled := False
-    end
-  end;
-
-  function InitializeWizard_(): Boolean;
-  begin
-    PasswordEditOnChangePrev := WizardForm.PasswordEdit.OnChange
-    WizardForm.PasswordEdit.OnChange := @PasswordEditOnChange
-  end;
-
-  function CheckPassword(Password: String): Boolean;
-  begin
-    if LowerCase(Password) = 'yes' then
-    begin
-      Result := True
-    end
-  end;
-#endif
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// GUID stuff
-
-var appIsSet: Boolean;
-
-function GetGUID(def: String): String;
-begin
-  if not appIsSet then
-  begin
-    Result := ''
-    Exit
-  end;
-  if IsSubnautica then
-  begin
-    Result := '{52CC87AA-645D-40FB-8411-510142191678}'
-    Exit
-  end;
-  if IsTerraTech then
-  begin
-    Result := '{53D64B81-BFF9-47E3-A599-66C18ED14B71}'
-    Exit
-  end
-end;
-
-function InitializeSetup(): Boolean;
-begin
-  appIsSet := False
-  Result := True
-end;
-
-function NextButtonClick(CurPageID: Integer): Boolean;
-begin
-  if CurPageID = wpSelectComponents then
-  begin
-    appIsSet := True
-  end;
-  Result := True
-end;
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Button disable
-
-var TypesComboOnChangePrev: TNotifyEvent;
-
-procedure ComponentsListCheckChanges;
-begin
-  WizardForm.NextButton.Enabled := (WizardSelectedComponents(False) <> '')
-end;
-
-procedure ComponentsListClickCheck(Sender: TObject);
-begin
-  ComponentsListCheckChanges
-end;
-
-procedure TypesComboOnChange(Sender: TObject);
-begin
-  TypesComboOnChangePrev(Sender)
-  ComponentsListCheckChanges
-end;
-
-procedure InitializeWizard();
-begin
-  WizardForm.ComponentsList.OnClickCheck := @ComponentsListClickCheck
-  TypesComboOnChangePrev := WizardForm.TypesCombo.OnChange
-  WizardForm.TypesCombo.OnChange := @TypesComboOnChange
-  #if PreRelease == True
-    InitializeWizard_()
-  #endif
-end;
-
-procedure CurPageChanged(CurPageID: Integer);
-begin
-  #if InstallerTest == True
-    CurPageChanged_DisableReady(CurPageID)
-  #endif
-  #if PreRelease == True
-    CurPageChanged__(CurPageID)
-  #endif
-  CurPageChanged_(CurPageID)
-  if CurPageID = wpSelectComponents then
-  begin
-    ComponentsListCheckChanges
   end
 end;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Obsolete
+// Get install path from registry
 
-function GetDefaultDir(def: String): String;
+function GetDir(folder: String; name: String): String;
 var
 I : Integer;
 P : Integer;
@@ -321,12 +202,10 @@ configFile : String;
 fileLines: TArrayOfString;
 begin
   steamInstallPath := 'not found'
-  if RegQueryStringValue( HKEY_LOCAL_MACHINE, 'SOFTWARE\WOW6432Node\Valve\Steam', 'InstallPath', steamInstallPath ) then
+  RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\WOW6432Node\Valve\Steam', 'InstallPath', steamInstallPath)
+  if (FileExists(steamInstallPath + '\steamapps\common\' + folder + '\' + name + '.exe')) and (FileExists(steamInstallPath + '\steamapps\common\' + folder + '\' + name + '\Assembly-CSharp.dll')) then
   begin
-  end;
-  if FileExists(steamInstallPath + '\steamapps\common\TerraTech\TerraTechWin64.exe') then
-  begin
-    Result := steamInstallPath + '\steamapps\common\TerraTech'
+    Result := steamInstallPath + '\steamapps\common\' + folder
     Exit
   end
   else
@@ -342,9 +221,9 @@ begin
           if P > 0 then
           begin
             steamInstallPath := Copy(FileLines[I], P + 23, Length(FileLines[i]) - P - 23)
-            if FileExists(steamInstallPath + '\steamapps\common\TerraTech\TerraTechWin64.exe') then
+            if (FileExists(steamInstallPath + '\steamapps\common\' + folder + '\' + name + '.exe')) and (FileExists(steamInstallPath + '\steamapps\common\' + folder + '\' + name + '\Assembly-CSharp.dll')) then
             begin
-              Result := steamInstallPath + '\steamapps\common\TerraTech'
+              Result := steamInstallPath + '\steamapps\common\' + folder
               Exit
             end
           end
@@ -352,5 +231,253 @@ begin
       end
     end
   end;
-  Result := 'C:\';
+  Result := ''
+end;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Auto-complete check boxes
+
+var ACLabel: TLabel;
+var SubnauticaButton: TNewRadioButton;
+var TerraTechButton: TNewRadioButton;
+
+procedure TerraTechButtonOnClick(Sender: TObject);
+begin
+  WizardForm.DirEdit.Text := GetDir('TerraTech', 'TerraTechWin64')
+end;
+
+procedure SubnauticaButtonOnClick(Sender: TObject);
+begin
+  WizardForm.DirEdit.Text := GetDir('Subnautica', 'Subnautica')
+end;
+
+function InitializeWizard_AddButtons(): Boolean;
+begin
+  ACLabel := TLabel.Create(WizardForm)
+  with ACLabel do
+  begin
+    Parent := WizardForm
+    Caption := 'Auto-complete path for:'
+    Left := WizardForm.BackButton.Left - 360
+    Top := WizardForm.BackButton.Top - 8
+  end;
+  Log('[UI] Added auto-complete label')
+
+  SubnauticaButton := TNewRadioButton.Create(WizardForm)
+  with SubnauticaButton do
+  begin
+    Parent := WizardForm
+    Caption := 'Subnautica'
+    OnClick := @SubnauticaButtonOnClick
+    Left := WizardForm.BackButton.Left - 244
+    Top := WizardForm.BackButton.Top + 10
+    Height := WizardForm.BackButton.Height
+  end;
+  Log('[UI] Added auto-complete button for Subnautica')
+  
+  TerraTechButton := TNewRadioButton.Create(WizardForm)
+  with TerraTechButton do
+  begin
+    Parent := WizardForm
+    Caption := 'TerraTech'
+    OnClick := @TerraTechButtonOnClick
+    Left := WizardForm.BackButton.Left - 122
+    Top := WizardForm.BackButton.Top + 10
+    Height := WizardForm.BackButton.Height
+  end;
+  Log('[UI] Added auto-complete button for TerraTech')
+end;
+
+function CurPageChanged_AddButtons(CurPageID: Integer): Boolean;
+begin
+  if CurPageID = wpSelectDir then
+  begin
+    WizardForm.DirEdit.Text := ''
+    if (GetDir('Subnautica', 'Subnautica') = '') and (SubnauticaButton.Enabled = true) then
+    begin
+      SubnauticaButton.Enabled := false
+      Log('[UI] Disabled auto-complete button for Subnautica')
+    end;
+    if (GetDir('TerraTech', 'TerraTechWin64') = '') and (TerraTechButton.Enabled = true) then
+    begin
+      TerraTechButton.Enabled := false
+      Log('[UI] Disabled auto-complete button for TerraTech')
+    end;
+    if SubnauticaButton.Enabled and not TerraTechButton.Enabled then
+    begin
+      WizardForm.DirEdit.Text := GetDir('Subnautica', 'Subnautica')
+    end
+    else if TerraTechButton.Enabled and not SubnauticaButton.Enabled then
+    begin
+      WizardForm.DirEdit.Text := GetDir('TerraTech', 'TerraTechWin64')
+    end
+  end;
+  SubnauticaButton.Visible := CurPageID = wpSelectDir
+  TerraTechButton.Visible := CurPageID = wpSelectDir
+  ACLabel.Visible := CurPageID = wpSelectDir
+end;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// GUID stuff
+
+var appIsSet: Boolean;
+
+function GetGUID(def: String): String;
+begin
+  if not appIsSet then
+  begin
+    Result := ''
+    Log('[GUID] Returned empty app id at startup. This is normal')
+    Exit
+  end;
+  if IsSubnautica then
+  begin
+    Result := '{52CC87AA-645D-40FB-8411-510142191678}'
+    Log('[GUID] Returned app id for Subnautica')
+    Exit
+  end;
+  if IsTerraTech then
+  begin
+    Result := '{53D64B81-BFF9-47E3-A599-66C18ED14B71}'
+    Log('[GUID] Returned app id for TerraTech');
+    Exit
+  end
+end;
+
+function InitializeSetup(): Boolean;
+begin
+  appIsSet := false
+  Result := true
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  if CurPageID = wpSelectComponents then
+  begin
+    appIsSet := true
+  end;
+  Result := true
+end;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Installer test
+
+#if InstallerTest == true
+  var LastValue_DisableInstall: Boolean;
+
+  function CurPageChanged_DisableInstall(CurPageID: Integer): Boolean;
+  begin
+    if CurPageID = wpReady then
+    begin
+      WizardForm.NextButton.Enabled := false
+      LastValue_DisableInstall := false
+      Log('[INSTALLER-TEST] Next button disabled, this is just an dummy installer prototype')
+    end
+    else if LastValue_DisableInstall = false then
+    begin
+      WizardForm.NextButton.Enabled := true
+      LastValue_DisableInstall := true
+      Log('[INSTALLER-TEST] Next button enabled, page changed')
+    end
+  end;
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Password stuff
+
+#if PreRelease == true
+  var PasswordEditOnChangePrev: TNotifyEvent;
+  var LastValue_PreRelease: Boolean;
+
+  function CurPageChanged__(CurPageID: Integer): Boolean;
+  begin
+    if CurPageID = wpPassword then
+    begin
+      WizardForm.PasswordEdit.Password := false;
+      WizardForm.NextButton.Enabled := false;
+      LastValue_PreRelease := false;
+      Log('[PRE-RELEASE] Next button disabled, need pre-release consent')
+    end
+  end;
+
+  procedure PasswordEditOnChange(Sender: TObject);
+  begin
+    if (LowerCase(WizardForm.PasswordEdit.Text) = 'yes') then
+    begin
+      WizardForm.NextButton.Enabled := true
+      LastValue_PreRelease := true
+      Log('[PRE-RELEASE] Next button enabled, consent granted')
+    end
+    else if (LastValue_PreRelease = true) and not (WizardForm.PasswordEdit.Text = '') then
+    begin
+      WizardForm.NextButton.Enabled := false
+      LastValue_PreRelease := false
+      Log('[PRE-RELEASE] Next button disabled, consent changed')
+    end
+  end;
+
+  function InitializeWizard_(): Boolean;
+  begin
+    PasswordEditOnChangePrev := WizardForm.PasswordEdit.OnChange
+    WizardForm.PasswordEdit.OnChange := @PasswordEditOnChange
+    Log('[EVENTS] Added password on change event')
+  end;
+
+  function CheckPassword(Password: String): Boolean;
+  begin
+    if LowerCase(Password) = 'yes' then
+    begin
+      Result := true
+    end
+  end;
+#endif
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Button disable
+
+var TypesComboOnChangePrev: TNotifyEvent;
+
+procedure ComponentsListCheckChanges;
+begin
+  WizardForm.NextButton.Enabled := (WizardSelectedComponents(false) <> '')
+  Log('[FOLDER-CHECK] Next button disabled, cannot install in this folder')
+end;
+
+procedure ComponentsListClickCheck(Sender: TObject);
+begin
+  ComponentsListCheckChanges
+end;
+
+procedure TypesComboOnChange(Sender: TObject);
+begin
+  TypesComboOnChangePrev(Sender)
+  ComponentsListCheckChanges
+end;
+
+procedure InitializeWizard;
+begin
+  WizardForm.ComponentsList.OnClickCheck := @ComponentsListClickCheck
+  TypesComboOnChangePrev := WizardForm.TypesCombo.OnChange
+  WizardForm.TypesCombo.OnChange := @TypesComboOnChange
+  Log('[EVENTS] Added components list check event')
+  #if PreRelease == true
+    InitializeWizard_()
+  #endif
+  InitializeWizard_AddButtons;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+begin
+  #if InstallerTest == true
+    CurPageChanged_DisableInstall(CurPageID)
+  #endif
+  #if PreRelease == true
+    CurPageChanged__(CurPageID)
+  #endif
+  CurPageChanged_SelectComponents(CurPageID)
+  CurPageChanged_AddButtons(CurPageID)
+  if CurPageID = wpSelectComponents then
+  begin
+    ComponentsListCheckChanges
+  end
 end;
