@@ -402,7 +402,7 @@ namespace QModManager
         /// </summary>
         /// <returns>The line that needs to be used</returns>
         internal static string GetModsLine()
-            => $"This game is modded! Using QModManager {version}, with {loadedMods.Count} loaded mods. (Check the output log for a complete list of installed mods and respective their load times)";
+            => $"This game is modded! Using QModManager {version}, with {loadedMods.Count} loaded mods. (Check the output log for a complete list of installed mods)";
 
         /// <summary>
         /// Flags the game as being modded by doing some patches from the <see cref="Patches"/> class
