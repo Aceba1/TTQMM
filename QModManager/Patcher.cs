@@ -395,7 +395,7 @@ namespace QModManager
         /// <summary>
         /// The current version of QModManager
         /// </summary>
-        internal static Version version = new Version(1, 3, 1);
+        internal static Version version = new Version(2, 0);
 
         /// <summary>
         /// Gets a line that is used in <see cref="Patches.UIScreenBugReport_Post"/> and <see cref="Patches.UIScreenBugReport_PostIt"/>
@@ -409,12 +409,10 @@ namespace QModManager
         /// </summary>
         internal static void FlagGame()
         {
-            if (sw.IsRunning)
-                sw.Stop();
             sw.Reset();
             sw.Start();
 
-            string Id = "ttqmm.internal.modflag";
+            string Id = "alexejheroytb.modding.multigame.qmodmanager.flagging";
             string Name = "Game Flagging";
 
             try
