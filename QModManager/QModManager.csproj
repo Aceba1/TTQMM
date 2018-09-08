@@ -76,6 +76,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExitCodes.cs" />
     <Compile Include="Injector.cs" />
     <Compile Include="LegacySupport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
