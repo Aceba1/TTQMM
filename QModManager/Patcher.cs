@@ -470,7 +470,8 @@ namespace QModManager
         /// <param name="line">The line to add</param>
         internal static void AddLog(string line)
         {
-            rawLines.Add(line);
+            foreach (string segment in line.Split('\n','\r'))
+                rawLines.Add(segment);
         }
 
         /// <summary>
