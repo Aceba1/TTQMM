@@ -166,7 +166,6 @@ namespace QModManager
             {
                 try
                 {
-                var jsonFile = Path.Combine(subDir, "mod.json");
 
                 if (!File.Exists(jsonFile))
                 {
@@ -300,8 +299,6 @@ namespace QModManager
             {
                 try
                 {
-                try
-                {
                     if (sw.IsRunning)
                         sw.Stop();
                     sw.Reset();
@@ -351,13 +348,6 @@ namespace QModManager
                         AddLog(e.InnerException.StackTrace);
                     }
                     return null;
-                }
-                }
-                catch (Exception e)
-                {
-                    AddLog("ERROR! An unrecoverable error occured!");
-                    AddLog(e.Message);
-                    AddLog(e.StackTrace);
                 }
             }
 
