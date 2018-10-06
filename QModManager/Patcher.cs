@@ -221,46 +221,50 @@ namespace QModManager
 
             // LoadBefore and LoadAfter stuff
 
+            AddLog(" ");
+            AddLog("Installed mods:");
+
             foreach (var mod in firstMods)
             {
                 if (mod != null)
+                {
                     loadedMods.Add(LoadMod(mod));
+                    LogModLoadTime(mod);
+                }
             }
 
             foreach (var mod in otherMods)
             {
                 if (mod != null)
+                {
                     loadedMods.Add(LoadMod(mod));
+                    LogModLoadTime(mod);
+                }
             }
 
             foreach (var mod in lastMods)
             {
                 if (mod != null)
+                {
                     loadedMods.Add(LoadMod(mod));
+                    LogModLoadTime(mod);
+                }
             }
 
             if (sw.IsRunning)
                 sw.Stop();
 
-            List<QMod> mods = firstMods.Union(otherMods).Union(lastMods).ToList();
-            mods.Sort();
-
             FlagGame();
 
-            AddLog(" ");
-            AddLog("Installed mods:");
-
-            foreach (var mod in mods)
-            {
-                bool success = elapsedTimes.TryGetValue(mod, out string elapsed);
-                if (success)
-                    AddLog($"- {mod.DisplayName} ({mod.Id}) - {elapsed}");
-                else
-                    AddLog($"- {mod.DisplayName} ({mod.Id}) - Unkown load time");
-                // - Internal Flagging (qmm.internal.modflag)
-            }
-
             Console.WriteLine(ParseLog());
+        }
+
+        private static void LogModLoadTime(QMod mod)
+        {
+            if (elapsedTimes.TryGetValue(mod, out string elapsed))
+                AddLog($"- {mod.DisplayName} ({mod.Id}) - {elapsed}");
+            else
+                AddLog($"- {mod.DisplayName} ({mod.Id}) - Unkown load time");
         }
 
         /// <summary>
