@@ -100,6 +100,7 @@ namespace QModManager
                     AddLog(e.InnerException.Message);
                     AddLog(e.InnerException.StackTrace);
                 }
+                Console.WriteLine(ParseLog());
             }
         }
 
@@ -474,7 +475,7 @@ namespace QModManager
         /// <param name="line">The line to add</param>
         internal static void AddLog(string line)
         {
-            foreach (string segment in line.Split('\n','\r'))
+            foreach (string segment in line.Split(new char[]{'\n', '\r'}, StringSplitOptions.RemoveEmptyEntries))
                 rawLines.Add(segment);
         }
 
@@ -522,6 +523,7 @@ namespace QModManager
             }
             output += Blank(maxLength);
             output += separator;
+            rawLines.Clear();
             return output;
         }
 
