@@ -166,52 +166,53 @@ namespace QModManager
             {
                 try
                 {
+                    var jsonFile = Path.Combine(subDir, "mod.json");
 
-                if (!File.Exists(jsonFile))
-                {
-                    AddLog($"ERROR! No \"mod.json\" file found in folder \"{subDir}\"");
-                    File.WriteAllText(jsonFile, JsonConvert.SerializeObject(new QMod()));
-                    AddLog("A template file was created");
-                    continue;
-                }
+                    if (!File.Exists(jsonFile))
+                    {
+                        AddLog($"ERROR! No \"mod.json\" file found in folder \"{subDir}\"");
+                        File.WriteAllText(jsonFile, JsonConvert.SerializeObject(new QMod()));
+                        AddLog("A template file was created");
+                        continue;
+                    }
 
-                QMod mod = QMod.FromJsonFile(Path.Combine(subDir, "mod.json"));
+                    QMod mod = QMod.FromJsonFile(Path.Combine(subDir, "mod.json"));
 
-                if (mod == (null))
-                    continue;
+                    if (mod == (null))
+                        continue;
 
-                if (mod.Enable == false)
-                {
-                    AddLog($"{mod.DisplayName} is disabled via config, skipping");
-                    continue;
-                }
+                    if (mod.Enable == false)
+                    {
+                        AddLog($"{mod.DisplayName} is disabled via config, skipping");
+                        continue;
+                    }
 
-                var modAssemblyPath = Path.Combine(subDir, mod.AssemblyName);
+                    var modAssemblyPath = Path.Combine(subDir, mod.AssemblyName);
 
-                if (!File.Exists(modAssemblyPath))
-                {
-                    AddLog($"ERROR! No matching dll found at \"{modAssemblyPath}\" for mod \"{mod.DisplayName}\"");
-                    continue;
-                }
+                    if (!File.Exists(modAssemblyPath))
+                    {
+                        AddLog($"ERROR! No matching dll found at \"{modAssemblyPath}\" for mod \"{mod.DisplayName}\"");
+                        continue;
+                    }
 
-                mod.LoadedAssembly = Assembly.LoadFrom(modAssemblyPath);
-                mod.ModAssemblyPath = modAssemblyPath;
+                    mod.LoadedAssembly = Assembly.LoadFrom(modAssemblyPath);
+                    mod.ModAssemblyPath = modAssemblyPath;
 
-                if (mod.Priority.Equals("Last"))
-                {
-                    lastMods.Add(mod);
-                    continue;
-                }
-                else if (mod.Priority.Equals("First"))
-                {
-                    firstMods.Add(mod);
-                    continue;
-                }
-                else
-                {
-                    otherMods.Add(mod);
-                    continue;
-                }
+                    if (mod.Priority.Equals("Last"))
+                    {
+                        lastMods.Add(mod);
+                        continue;
+                    }
+                    else if (mod.Priority.Equals("First"))
+                    {
+                        firstMods.Add(mod);
+                        continue;
+                    }
+                    else
+                    {
+                        otherMods.Add(mod);
+                        continue;
+                    }
                 }
                 catch(Exception E)
                 {
