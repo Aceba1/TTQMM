@@ -265,7 +265,7 @@ namespace QModManager
             if (elapsedTimes.TryGetValue(mod, out string elapsed))
                 AddLog($"- {mod.DisplayName} ({mod.Id}) - {elapsed}");
             else
-                AddLog($"- {mod.DisplayName} ({mod.Id}) - Unkown load time");
+                AddLog($"- {mod.DisplayName} ({mod.Id}) - Unknown load time");
         }
 
         /// <summary>
