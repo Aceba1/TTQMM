@@ -435,7 +435,7 @@ namespace QModManager
             }
             catch (Exception e)
             {
-                AddLog("EXCEPTION CAUGHT!");
+                AddLog("EXCEPTION CAUGHT! (Internal patch)");
                 AddLog(e.Message);
                 AddLog(e.StackTrace);
                 if (e.InnerException != null)
@@ -444,6 +444,21 @@ namespace QModManager
                     AddLog(e.InnerException.StackTrace);
                 }
             }
+			try
+			{
+				LobbySystem.PROTOCOL_VERSION+= 1000;
+			}
+			catch (Exception e)
+			{
+				AddLog("EXCEPTION CAUGHT! (Changing lobby protocol version)");
+                AddLog(e.Message);
+                AddLog(e.StackTrace);
+                if (e.InnerException != null)
+                {
+                    AddLog(e.InnerException.Message);
+                    AddLog(e.InnerException.StackTrace);
+                }
+			}
 
             sw.Stop();
 
