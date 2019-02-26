@@ -444,9 +444,13 @@ namespace QModManager
                     AddLog(e.InnerException.StackTrace);
                 }
             }
-			try
-			{
-				LobbySystem.PROTOCOL_VERSION+= 1000;
+            
+            //This is not supported by the game as of yet
+
+            /*
+            try
+            { 
+                TerraTech.Network.LobbySystem.PROTOCOL_VERSION+= 1000;
 			}
 			catch (Exception e)
 			{
@@ -458,7 +462,8 @@ namespace QModManager
                     AddLog(e.InnerException.Message);
                     AddLog(e.InnerException.StackTrace);
                 }
-			}
+			} 
+            /**/
 
             sw.Stop();
 
