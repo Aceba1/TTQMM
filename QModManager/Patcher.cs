@@ -573,6 +573,15 @@ namespace QModManager
             }
         }
 
+        [HarmonyPatch(typeof(UIScreenBugReport), "ShowContinueAfterCrashNotification")]
+        internal static class UIScreenBugReport_ShowContinueAfterCrashNotification
+        {
+            internal static bool Postfix()
+            {
+                return false;
+            }
+        }
+
         [HarmonyPatch]
         internal static class UIScreenBugReport_PostIt
         {
