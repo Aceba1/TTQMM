@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>QModManager</RootNamespace>
     <AssemblyName>QModManager</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -35,7 +35,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Installer\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -60,15 +60,32 @@
   <PropertyGroup />
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\Dependencies\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed_Old\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed_Old\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.SharedInternalsModule">
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed\UnityEngine.SharedInternalsModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed_Old\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -114,10 +131,12 @@
     <ProjectReference Include="..\QModManager\QModManager.csproj">
       <Project>{e00b7fe8-0f1d-4ae6-9e47-4bfd81537f14}</Project>
       <Name>QModInstaller</Name>
+      <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\QModManager\QModManager.csproj">
       <Project>{e00b7fe8-0f1d-4ae6-9e47-4bfd81537f14}</Project>
       <Name>QModManager</Name>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -132,8 +151,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)Mono.Cecil.dll" "$(SolutionDir)Installer\Mono.Cecil.dll"
-copy /y "$(TargetDir)QModInstaller.dll" "$(SolutionDir)Installer\QModInstaller.dll"
-copy /y "$(TargetDir)QModManager.exe" "$(SolutionDir)Installer\QModManager.exe"</PostBuildEvent>
+    <PostBuildEvent>del "$(SolutionDir)Installer\*.config"
+del "$(SolutionDir)Installer\*.pdb"</PostBuildEvent>
   </PropertyGroup>
 </Project>

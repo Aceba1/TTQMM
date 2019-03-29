@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>QModInstaller</RootNamespace>
     <AssemblyName>QModInstaller</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\Installer\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -39,15 +39,16 @@
     <Reference Include="0Harmony, Version=1.0.9.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\0Harmony.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\Mono.Cecil.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -60,18 +61,16 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed_Old\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\UnityEngine.CoreModule.dll</HintPath>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed_Old\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>..\Dependencies\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\..\..\Desktop\Steam Install\Steam Installation Folder\steamapps\common\TerraTech Beta\TerraTechWin64_Data\Managed_Old\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -88,7 +87,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
+    <PostBuildEvent>del "$(SolutionDir)Installer\*.config"
+del "$(SolutionDir)Installer\*.pdb"</PostBuildEvent>
   </PropertyGroup>
 </Project>
