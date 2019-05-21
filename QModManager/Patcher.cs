@@ -566,5 +566,14 @@ namespace QModManager
                 typeof(UIScreenBugReport).GetField("m_ErrorCatcher", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(__instance, false);
             }
         }
+
+        [HarmonyPatch(typeof(TerraTech.Network.LobbySystem), "GetInstalledModsHash")]
+        internal static class LobbySystem_GetInstalledModsHash
+        {
+            internal static void Postfix(ref int __result)
+            {
+                __result = 0x7AC0BE11;
+            }
+        }
     }
 }
