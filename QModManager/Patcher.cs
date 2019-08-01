@@ -117,10 +117,27 @@ namespace QModManager
                     Console.WriteLine(Path.GetFileNameWithoutExtension(dll.Name) + " " + args.Name);
                     if (args.Name.Contains(Path.GetFileNameWithoutExtension(dll.Name)))
                     {
+                        FileInfo[] modjson = dll.Directory.GetFiles("mod.json", SearchOption.TopDirectoryOnly);
+                        if (modjson.Length != 0)
+                        {
+                            try
+                            {
+                                if (Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(modjson[0].FullName))
+                                    .TryGetValue("Enabled", out Newtonsoft.Json.Linq.JToken isEnabled) &&
+                                    !(bool)isEnabled)
+                                {
+                                    Console.WriteLine("Cannot resolve Assembly " + dll.Name + " - Disabled by mod.json");
+                                    continue;
+                                }
+                            }
+                            catch { /*fail silently*/ }
+                        }
+                        Console.WriteLine();
                         return Assembly.LoadFrom(dll.FullName);
                     }
                 }
 
+                Console.WriteLine("Could not find assembly " + args.Name);
                 return null;
             };
 
@@ -183,7 +200,7 @@ namespace QModManager
 
                     if (mod.Enable == false)
                     {
-                        AddLog($"{mod.DisplayName} is disabled via config, skipping");
+                        AddLog($"- {mod.DisplayName} is Disabled, skipping");
                         continue;
                     }
 
