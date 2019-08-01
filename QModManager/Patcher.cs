@@ -583,6 +583,17 @@ namespace QModManager
             }
         }
 
+        [HarmonyPatch(typeof(UIScreenBugReport), "Post")]
+        internal static class UIScreenBugReport_Post
+        {
+            internal static bool Prefix(UIScreenBugReport __instance)
+            {
+                ManUI.inst.ShowErrorPopup("In-game bug reporting has been disabled for modded clients");
+                __instance.ExitScreen();
+                return false;
+            }
+        }
+
         [HarmonyPatch(typeof(TerraTech.Network.LobbySystem), "GetInstalledModsHash")]
         internal static class LobbySystem_GetInstalledModsHash
         {
