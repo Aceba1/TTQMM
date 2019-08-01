@@ -114,7 +114,6 @@ namespace QModManager
                 var allDlls = new DirectoryInfo(QModBaseDir).GetFiles("*.dll", SearchOption.AllDirectories);
                 foreach (var dll in allDlls)
                 {
-                    Console.WriteLine(Path.GetFileNameWithoutExtension(dll.Name) + " " + args.Name);
                     if (args.Name.Contains(Path.GetFileNameWithoutExtension(dll.Name)))
                     {
                         FileInfo[] modjson = dll.Directory.GetFiles("mod.json", SearchOption.TopDirectoryOnly);
