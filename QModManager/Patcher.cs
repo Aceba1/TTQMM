@@ -1,4 +1,4 @@
-﻿using Harmony;
+﻿using HarmonyLib;
 using Newtonsoft.Json;
 using QModManager.Utility;
 using System;
@@ -447,7 +447,7 @@ namespace QModManager
 
             try
             {
-                HarmonyInstance.Create(Id).PatchAll(Assembly.GetExecutingAssembly());
+                new Harmony(Id).PatchAll(Assembly.GetExecutingAssembly());
             }
             catch (Exception e)
             {
