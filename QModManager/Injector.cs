@@ -1,8 +1,9 @@
-﻿using Mono.Cecil;
-using Mono.Cecil.Cil;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using Mono.Cecil;
+using Mono.Cecil.Cil;
 using QModManager.Utility;
 
 namespace QModManager
@@ -14,6 +15,8 @@ namespace QModManager
         public string installerFilename = @"QModInstaller.dll";
         public string mainFilename = @"/Assembly-CSharp.dll";
         public string backupFilename = @"/Assembly-CSharp.qoriginal.dll";
+
+        internal readonly OpCode CALL;
 
         public QModInjector(string dir, string managedDir = null)
         {
@@ -28,6 +31,9 @@ namespace QModManager
 			}
             mainFilename = managedDirectory + mainFilename;
             backupFilename = managedDirectory + backupFilename;
+
+            Type OpCodesClassType = Assembly.GetExecutingAssembly().GetType("Mono.Cecil.Cil.OpCodes");
+            CALL = (OpCode) OpCodesClassType.GetField("Call", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         }
 
         public void Inject()
@@ -57,7 +63,7 @@ namespace QModManager
                 TypeDefinition type = game.MainModule.GetType("TankCamera");
                 MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
 
-                method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(OpCodes.Call, method.Module.Import(patchMethod)));
+                method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(CALL, method.Module.ImportReference(patchMethod)));
 
                 game.Write(mainFilename);
 
@@ -122,7 +128,8 @@ namespace QModManager
 
                 foreach (var instruction in method.Body.Instructions)
                 {
-                    if (instruction.OpCode.Equals(OpCodes.Call) && instruction.Operand.ToString().Equals("System.Void QModInstaller.QModPatcher::Patch()"))
+                    
+                    if (instruction.OpCode.Equals(CALL) && instruction.Operand.ToString().Equals("System.Void QModInstaller.QModPatcher::Patch()"))
                     {
                         return true;
                     }
