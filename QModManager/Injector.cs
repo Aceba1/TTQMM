@@ -48,8 +48,8 @@ namespace QModManager
                 if (File.Exists(backupFilename))
                 {
                     File.Delete(backupFilename);
-                    System.IO.File.Copy(mainFilename, backupFilename);
                 }
+                System.IO.File.Copy(mainFilename, backupFilename);
 
                 using (AssemblyDefinition game = AssemblyDefinition.ReadAssembly(backupFilename))
                 {
