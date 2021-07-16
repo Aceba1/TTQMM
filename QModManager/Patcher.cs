@@ -111,7 +111,7 @@ namespace QModManager
         /// </summary>
         internal static void LoadMods()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+            AppDomain.CurrentDomain.AssemblyResolve += delegate(object sender, ResolveEventArgs args)
             {
                 var allDlls = new DirectoryInfo(QModBaseDir).GetFiles("*.dll", SearchOption.AllDirectories);
                 foreach (var dll in allDlls)
