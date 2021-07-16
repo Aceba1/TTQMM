@@ -1,4 +1,6 @@
-﻿using HarmonyLib;
+﻿extern alias Harmony;
+
+using HarmonyLib = Harmony::HarmonyLib;
 using Newtonsoft.Json;
 using QModManager.Utility;
 using System;
@@ -447,7 +449,7 @@ namespace QModManager
 
             try
             {
-                new Harmony(Id).PatchAll(Assembly.GetExecutingAssembly());
+                new HarmonyLib.Harmony(Id).PatchAll(Assembly.GetExecutingAssembly());
             }
             catch (Exception e)
             {
@@ -574,7 +576,7 @@ namespace QModManager
 
     internal class Patches
     {
-        [HarmonyPatch(typeof(UIScreenBugReport), "Set")]
+        [HarmonyLib.HarmonyPatch(typeof(UIScreenBugReport), "Set")]
         internal static class UIScreenBugReport_Set
         {
             internal static void Postfix(UIScreenBugReport __instance)
@@ -583,7 +585,7 @@ namespace QModManager
             }
         }
 
-        [HarmonyPatch(typeof(UIScreenBugReport), "Post")]
+        [HarmonyLib.HarmonyPatch(typeof(UIScreenBugReport), "Post")]
         internal static class UIScreenBugReport_Post
         {
             internal static bool Prefix(UIScreenBugReport __instance)
@@ -594,7 +596,7 @@ namespace QModManager
             }
         }
 
-        [HarmonyPatch(typeof(TerraTech.Network.LobbySystem), "GetInstalledModsHash")]
+        [HarmonyLib.HarmonyPatch(typeof(TerraTech.Network.LobbySystem), "GetInstalledModsHash")]
         internal static class LobbySystem_GetInstalledModsHash
         {
             internal static void Postfix(ref int __result)

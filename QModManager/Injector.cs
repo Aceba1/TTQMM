@@ -16,12 +16,10 @@ namespace QModManager
         public string mainFilename = @"/Assembly-CSharp.dll";
         public string backupFilename = @"/Assembly-CSharp.qoriginal.dll";
 
-        internal readonly OpCode CALL;
-
         public QModInjector(string dir, string managedDir = null)
         {
             gameDirectory = dir;
-			if (managedDir == null)
+            if (managedDir == null)
 			{
 				managedDirectory = Path.Combine(gameDirectory, @"TerraTechWin64_Data/Managed");
 			}
@@ -31,9 +29,6 @@ namespace QModManager
 			}
             mainFilename = managedDirectory + mainFilename;
             backupFilename = managedDirectory + backupFilename;
-
-            Type OpCodesClassType = Assembly.GetExecutingAssembly().GetType("Mono.Cecil.Cil.OpCodes");
-            CALL = (OpCode) OpCodesClassType.GetField("Call", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).GetValue(null);
         }
 
         public void Inject()
@@ -50,22 +45,22 @@ namespace QModManager
                     Environment.Exit(0);
                 }
 
-                AssemblyDefinition game = AssemblyDefinition.ReadAssembly(mainFilename);
-
                 if (File.Exists(backupFilename))
+                {
                     File.Delete(backupFilename);
+                    System.IO.File.Copy(mainFilename, backupFilename);
+                }
 
-                game.Write(backupFilename);
+                using (AssemblyDefinition game = AssemblyDefinition.ReadAssembly(backupFilename))
+                {
+                    AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
+                    MethodDefinition patchMethod = installer.MainModule.GetType("QModManager.QModPatcher").Methods.First(x => x.Name == "Patch");
+                    TypeDefinition type = game.MainModule.GetType("TankCamera");
+                    MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
 
-                AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
-                MethodDefinition patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.First(x => x.Name == "Patch");
-
-                TypeDefinition type = game.MainModule.GetType("TankCamera");
-                MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
-
-                method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(CALL, method.Module.ImportReference(patchMethod)));
-
-                game.Write(mainFilename);
+                    method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(OpCodes.Call, method.Module.ImportReference(patchMethod)));
+                    game.Write(mainFilename);
+                }
 
                 if (!Directory.Exists(gameDirectory + @"/QMods"))
                     Directory.CreateDirectory(gameDirectory + @"/QMods");
@@ -118,20 +113,22 @@ namespace QModManager
         {
             try
             {
-                var game = AssemblyDefinition.ReadAssembly(mainFilename);
-
-                AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
-                MethodDefinition patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.Single(x => x.Name == "Patch");
-
-                TypeDefinition type = game.MainModule.GetType("TankCamera");
-                MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
-
-                foreach (var instruction in method.Body.Instructions)
+                using (var game = AssemblyDefinition.ReadAssembly(mainFilename))
                 {
-                    
-                    if (instruction.OpCode.Equals(CALL) && instruction.Operand.ToString().Equals("System.Void QModInstaller.QModPatcher::Patch()"))
+
+                    AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
+                    MethodDefinition patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.Single(x => x.Name == "Patch");
+
+                    TypeDefinition type = game.MainModule.GetType("TankCamera");
+                    MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
+
+                    foreach (var instruction in method.Body.Instructions)
                     {
-                        return true;
+
+                        if (instruction.OpCode.Equals(OpCodes.Call) && instruction.Operand.ToString().Equals("System.Void QModInstaller.QModPatcher::Patch()"))
+                        {
+                            return true;
+                        }
                     }
                 }
 
