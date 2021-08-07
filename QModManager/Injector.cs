@@ -51,7 +51,7 @@ namespace QModManager
                 }
                 System.IO.File.Copy(mainFilename, backupFilename);
 
-                using (AssemblyDefinition game = AssemblyDefinition.ReadAssembly(backupFilename))
+                using (AssemblyDefinition game = AssemblyDefinition.ReadAssembly(mainFilename, new ReaderParameters { ReadWrite = true }))
                 {
                     AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
                     MethodDefinition patchMethod = installer.MainModule.GetType("QModManager.QModPatcher").Methods.First(x => x.Name == "Patch");
@@ -59,7 +59,7 @@ namespace QModManager
                     MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
 
                     method.Body.GetILProcessor().InsertBefore(method.Body.Instructions[0], Instruction.Create(OpCodes.Call, method.Module.ImportReference(patchMethod)));
-                    game.Write(mainFilename);
+                    game.Write();
                 }
 
                 if (!Directory.Exists(gameDirectory + @"/QMods"))
@@ -113,11 +113,12 @@ namespace QModManager
         {
             try
             {
+                bool inUse = false;
                 using (var game = AssemblyDefinition.ReadAssembly(mainFilename))
                 {
 
                     AssemblyDefinition installer = AssemblyDefinition.ReadAssembly(installerFilename);
-                    MethodDefinition patchMethod = installer.MainModule.GetType("QModInstaller.QModPatcher").Methods.Single(x => x.Name == "Patch");
+                    MethodDefinition patchMethod = installer.MainModule.GetType("QModManager.QModPatcher").Methods.Single(x => x.Name == "Patch");
 
                     TypeDefinition type = game.MainModule.GetType("TankCamera");
                     MethodDefinition method = type.Methods.Single(x => x.Name == "Awake");
@@ -125,14 +126,15 @@ namespace QModManager
                     foreach (var instruction in method.Body.Instructions)
                     {
 
-                        if (instruction.OpCode.Equals(OpCodes.Call) && instruction.Operand.ToString().Equals("System.Void QModInstaller.QModPatcher::Patch()"))
+                        if (instruction.OpCode.Equals(OpCodes.Call) && instruction.Operand.ToString().Equals("System.Void QModManager.QModPatcher::Patch()"))
                         {
-                            return true;
+                            inUse = true;
+                            break;
                         }
                     }
                 }
 
-                return false;
+                return inUse;
             }
             catch (Exception e)
             {
