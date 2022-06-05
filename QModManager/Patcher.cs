@@ -2,7 +2,6 @@
 
 using HarmonyLib = Harmony::HarmonyLib;
 using Newtonsoft.Json;
-using QModManager.Utility;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UnityEngine.UI;
+using Newtonsoft.Json.Linq;
 
 namespace QModManager
 {
@@ -30,7 +30,7 @@ namespace QModManager
 
             //public string[] Requires = new string[] { };
 
-            public bool Enable = true;
+            public bool Enable = false;
 
             public string AssemblyName = "DLL Filename";
 
@@ -123,15 +123,23 @@ namespace QModManager
                         {
                             try
                             {
-                                if (Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(modjson[0].FullName))
-                                    .TryGetValue("Enabled", out Newtonsoft.Json.Linq.JToken isEnabled) &&
-                                    !(bool)isEnabled)
+                                JObject jObject = JObject.Parse(File.ReadAllText(modjson[0].FullName));
+                                if (
+                                    (jObject.TryGetValue("Enabled", out JToken isEnabled) || jObject.TryGetValue("Enable", out isEnabled))
+                                    && !(bool)isEnabled
+                                )
                                 {
                                     Console.WriteLine("Cannot resolve Assembly " + dll.Name + " - Disabled by mod.json");
                                     continue;
                                 }
+                                else
+                                {
+                                    Console.WriteLine($"Found dll: {dll.Name}, IS ENABLED");
+                                }
                             }
-                            catch { /*fail silently*/ }
+                            catch { /*fail silently*/
+                                Console.WriteLine($"FAILED to parse config for dll {dll.Name}");
+                            }
                         }
                         Console.WriteLine();
                         return Assembly.LoadFrom(dll.FullName);
@@ -289,8 +297,13 @@ namespace QModManager
         /// <summary>
         /// The path of the QMods folder. If game is not launched through
         /// </summary>
-        internal static string QModBaseDir = Environment.CurrentDirectory.Contains("system32") && Environment.CurrentDirectory.Contains("Windows") ? "ERR" : Environment.CurrentDirectory + @"/QMods";
-
+        internal static string QModBaseDir = Environment.CurrentDirectory.Contains("system32") && Environment.CurrentDirectory.Contains("Windows") ?
+            "ERR" :
+            Path.GetFullPath(Path.Combine(
+                AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => assembly.GetName().Name == "Assembly-CSharp").First().Location
+                .Replace("Assembly-CSharp.dll", ""), @"../../QMods"
+            ));
         /// <summary>
         /// A list of all of the loaded mods
         /// </summary>
