@@ -137,7 +137,7 @@ namespace QModManager
                                     Console.WriteLine($"Found dll: {dll.Name}, IS ENABLED");
                                 }
                             }
-                            catch { /*fail silently*/
+                            catch {
                                 Console.WriteLine($"FAILED to parse config for dll {dll.Name}");
                             }
                         }
